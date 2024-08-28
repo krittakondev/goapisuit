@@ -22,7 +22,13 @@ func main() {
 		PORT = "3000"
 	}
 
-	app.Get("/", func(c *fiber.Ctx) error {
+	prefix := "/"
+	if prefix_api:=os.Getenv("PREFIX_API"); prefix_api!=""{
+		prefix = prefix_api
+	}
+	api := app.Group(prefix)
+
+	api.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("hello goAPIsuit!")
 	})
 
