@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
+	routes "github.com/krittakondev/goapisuit/internal/api"
 )
 
 func main() {
@@ -22,15 +23,15 @@ func main() {
 		PORT = "3000"
 	}
 
-	prefix := "/"
-	if prefix_api:=os.Getenv("PREFIX_API"); prefix_api!=""{
-		prefix = prefix_api
-	}
-	api := app.Group(prefix)
+	app.Static("/", "./public")
 
-	api.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("hello goAPIsuit!")
-	})
+	api_prefix := "/api"
+	if prefix:=os.Getenv("API_PREFIX"); prefix!=""{
+		prefix = prefix
+	}
+	api := app.Group(api_prefix)
+
+	api.Get("/", routes.MainRoute)
 
 	app.Listen(HOST+":"+PORT)
 }
