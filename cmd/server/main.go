@@ -58,6 +58,9 @@ func main() {
 			return nil
 		}
 		apipath := strings.ToLower(strings.Split(namemethod, "Route")[0])
+		if apipath == "main"{
+			apipath = ""
+		}
 		log.Print(api_prefix+"/"+apipath+" loaded")
 		api.All("/"+apipath, handler)
 	}
