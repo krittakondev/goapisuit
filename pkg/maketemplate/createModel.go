@@ -1,8 +1,9 @@
 package maketemplate
 
 import (
-    "os"
-    "text/template"
+	"log"
+	"os"
+	"text/template"
 )
 
 
@@ -15,7 +16,20 @@ func (mr  *MakeRoute) New() error{
 	if err != nil{
 		return err
 	}
-	if err := tmpl.Execute(os.Stdout, mr); err != nil{
+	createPath := "internal/api/"+mr.Name+".go"
+
+	if _, err := os.Stat(createPath); err == nil {
+		log.Fatal(createPath+ " is Exist")
+	}
+
+
+	file, err := os.OpenFile(createPath, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	
+
+	if err := tmpl.Execute(file, mr); err != nil{
 		return err
 	}
 

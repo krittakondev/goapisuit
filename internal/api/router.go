@@ -8,7 +8,10 @@ type Response struct{
 	Data interface{}
 }
 
-func MainRoute(c *fiber.Ctx) error{
+type Route struct{
+}
+
+func (r *Route) MainRoute(c *fiber.Ctx) error{
 	
 	resp := Response{
 		Message: "hello goapisuit",

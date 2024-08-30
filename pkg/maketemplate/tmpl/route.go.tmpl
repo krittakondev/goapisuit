@@ -8,9 +8,9 @@ type Response{{.Name}} struct{
 	Data interface{}
 }
 
-func {{.Name}}Route(c *fiber.Ctx) error{
+func (r *Route) {{.Name}}Route(c *fiber.Ctx) error{
 	
-	resp := Response{
+	resp := Response{{.Name}}{
 		Message: "response from {{.Name}}",
 		Data: []string{},
 	};

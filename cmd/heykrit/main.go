@@ -4,17 +4,11 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 
 	"github.com/krittakondev/goapisuit/pkg/maketemplate"
+	"github.com/krittakondev/goapisuit/pkg/utils"
 )
 
-func capitalizeFirstChar(s string) string {
-	if len(s) == 0 {
-		return s
-	}
-	return strings.ToUpper(string(s[0])) + s[1:]
-}
 
 func main() {
 	if len(os.Args) < 2 {
@@ -30,10 +24,10 @@ func main() {
 			fmt.Println("Please Enter Route name")
 			os.Exit(1)
 		}
-		routeName := capitalizeFirstChar(os.Args[2])
+		routeName := os.Args[2]
 
 		mkroute := &maketemplate.MakeRoute{
-			Name: routeName,
+			Name:  utils.CapitalizeFirstChar(routeName),
 		}
 		if err := mkroute.New(); err != nil{
 			log.Fatal(err)
