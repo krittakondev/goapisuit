@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -10,7 +11,6 @@ import (
 	"github.com/krittakondev/goapisuit/pkg/maketemplate"
 	"github.com/krittakondev/goapisuit/pkg/utils"
 )
-
 
 func main() {
 	if len(os.Args) < 2 {
@@ -29,17 +29,16 @@ func main() {
 		routeName := os.Args[2]
 
 		mkroute := &maketemplate.MakeRoute{
-			Name:  utils.CapitalizeFirstChar(routeName),
+			Name: utils.CapitalizeFirstChar(routeName),
 		}
-		if err := mkroute.New(); err != nil{
+		if err := mkroute.New(); err != nil {
 			log.Fatal(err)
 		}
-
 	case "db:testconnect":
-		if err := godotenv.Load(); err != nil{
+		if err := godotenv.Load(); err != nil {
 			log.Fatal(err)
 		}
-		if _, err := database.MysqlConnect(); err != nil{
+		if _, err := database.MysqlConnect(); err != nil {
 			log.Fatal(err)
 		}
 		log.Print("connect success")
