@@ -1,0 +1,20 @@
+package routes
+
+import "github.com/gofiber/fiber/v2"
+
+type Response{{.Name}} struct{
+	Code int
+	Message string
+	Data interface{}
+}
+
+func (r *Route) {{.Name}}Route(c *fiber.Ctx) error{
+	
+	resp := Response{{.Name}}{
+		Message: "response from {{.Name}}",
+		Data: []string{},
+	};
+	
+	return c.JSON(resp);
+}
+
