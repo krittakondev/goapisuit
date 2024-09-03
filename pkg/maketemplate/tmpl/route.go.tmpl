@@ -1,20 +1,102 @@
 package routes
 
-import "github.com/gofiber/fiber/v2"
+import (
 
-type Response{{.Name}} struct{
-	Code int
-	Message string
-	Data interface{}
+	"github.com/gofiber/fiber/v2"
+	"github.com/krittakondev/goapisuit/internal/models"
+	"gorm.io/gorm"
+)
+
+type ResponseUsers struct {
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
 }
 
-func (r *Route) {{.Name}}Route(c *fiber.Ctx) error{
-	
-	resp := Response{{.Name}}{
-		Message: "response from {{.Name}}",
-		Data: []string{},
-	};
-	
-	return c.JSON(resp);
+func (r *Route) Users_get(c *fiber.Ctx) error {
+	limit := c.QueryInt("limit", r.PageLimit)
+	page := c.QueryInt("page", 1)
+	code := 0
+	message := "response from {{.Name}}"
+	id := c.Params("id", "")
+
+
+	var result []models.Users
+	var tx *gorm.DB
+	if id != ""{
+		tx = r.DB.Where("id=?", id).Find(&result)
+		message = "response from Users id "+ id
+	}else{
+		tx = r.DB.Limit(limit).Offset((page-1)*limit).Order("created_at DESC").Find(&result)
+	}
+
+	if tx.Error != nil {
+		code = -1
+		message = "database error"
+	}
+	resp := ResponseUsers{
+		Code:    code,
+		Message: message,
+		Data:    result,
+	}
+
+	return c.JSON(resp)
 }
 
+func (r *Route) Users_post(c *fiber.Ctx) error {
+
+	var body models.Users;
+	
+	if err := c.BodyParser(&body); err != nil {
+		return c.JSON(ResponseUsers{
+			Code: -1,
+			Message: err.Error(),
+			Data: nil,
+		})
+	}
+	tx := r.DB.Create(&body)
+	if tx.Error != nil {
+		return c.JSON(ResponseUsers{
+			Code:    -1,
+			Message: "db error",
+			Data:    nil,
+		})
+	}
+
+	return c.JSON(ResponseUsers{
+		Code:    0,
+		Message: "Create Users Success",
+		Data:    body,
+	})
+
+}
+
+func (r *Route) Users_delete(c *fiber.Ctx) error {
+	id := c.Params("id", "")
+	if id == "" {
+		return c.JSON(ResponseUsers{
+			Code:    -1,
+			Message: "Users Id error",
+			Data:    nil,
+		})
+	}
+
+	tx := r.DB.Delete(&models.Users{}, id)
+	if tx.Error != nil {
+		return c.JSON(ResponseUsers{
+			Code:    -1,
+			Message: "db error",
+			Data:    nil,
+		})
+	}
+
+	return c.JSON(ResponseUsers{
+		Code:    0,
+		Message: "Delete Users id "+id+" Success",
+		Data:    nil,
+	})
+}
+
+func (r *Route) Users_put(c *fiber.Ctx) error {
+	return nil
+}
