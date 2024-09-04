@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -42,6 +41,26 @@ func main() {
 			log.Fatal(err)
 		}
 		log.Print("connect success")
+	case "db:migrate":
+		if len(os.Args) < 3 {
+			fmt.Println("Please Enter Model name")
+			os.Exit(1)
+		}
+		if err := godotenv.Load(); err != nil {
+			log.Fatal(err)
+		}
+		db, err := database.MysqlConnect()
+		if err != nil {
+			log.Fatal(err)
+		}
+		model_name := os.Args[2]
+		
+		err = database.Migrate(db, model_name)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("%s Migrate Success", model_name)
+		
 
 	default:
 		fmt.Println("Unknown command:", command)
