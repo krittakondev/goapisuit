@@ -98,5 +98,35 @@ func (r *Route) {{.Name}}_delete(c *fiber.Ctx) error {
 }
 
 func (r *Route) {{.Name}}_put(c *fiber.Ctx) error {
-	return nil
+	id := c.Params("id", "")
+	if id == "" {
+		return c.JSON(Response{{.Name}}{
+			Code:    -1,
+			Message: "{{.Name}} Id error",
+			Data:    nil,
+		})
+	}
+	var body models.{{.Name}}
+	err := c.BodyParser(&body)
+	if err != nil {
+		return c.JSON(Response{{.Name}}{
+			Code:    -1,
+			Message: err.Error(),
+			Data:    nil,
+		})
+	}
+	tx := r.DB.Model(&models.{{.Name}}{}).Where("id=?", id).Updates(body)
+	if tx.Error != nil {
+		return c.JSON(Response{{.Name}}{
+			Code:    -1,
+			Message: "db error",
+			Data:    nil,
+		})
+	}
+
+	return c.JSON(Response{{.Name}}{
+		Code:    0,
+		Message: "Update {{.Name}} id "+id+" Success",
+		Data:    nil,
+	})
 }
