@@ -105,5 +105,7 @@ func main() {
 		// api.All("/"+apipath, handler)
 	}
 
-	app.Listen(HOST + ":" + PORT)
+	if err := app.Listen(HOST + ":" + PORT); err != nil{
+		log.Fatal(err)
+	}
 }
