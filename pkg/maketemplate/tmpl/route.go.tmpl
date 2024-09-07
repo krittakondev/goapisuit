@@ -54,6 +54,7 @@ func (r *Route) {{.Name}}_post(c *fiber.Ctx) error {
 			Data: nil,
 		})
 	}
+	body.ID = 0
 	tx := r.DB.Create(&body)
 	if tx.Error != nil {
 		return c.JSON(Response{{.Name}}{
