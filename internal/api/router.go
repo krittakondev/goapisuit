@@ -14,12 +14,14 @@ type Response struct {
 type Route struct{
 	DB *gorm.DB
 	PageLimit int
+	RequireJwtAuth func(*fiber.Ctx) error
 }
 
 func (r *Route) Index_get(c *fiber.Ctx) error{
 	
 	resp := Response{
 		Message: "hello goapisuit",
+	
 		Data: []string{},
 	};
 	

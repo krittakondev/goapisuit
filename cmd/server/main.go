@@ -12,6 +12,7 @@ import (
 	"github.com/joho/godotenv"
 	routes "github.com/krittakondev/goapisuit/internal/api"
 	"github.com/krittakondev/goapisuit/internal/database"
+	"github.com/krittakondev/goapisuit/internal/middlewares"
 	// routesAll "github.com/krittakondev/goapisuit/internal/api/routes"
 )
 
@@ -51,6 +52,7 @@ func main() {
 	mkroute := &routes.Route{
 		DB: db,
 		PageLimit: 20,
+		RequireJwtAuth: middlewares.RequireJwtAuth,
 	}
 
 	t := reflect.TypeOf(mkroute)
