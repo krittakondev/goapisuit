@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/krittakondev/goapisuit/internal/database"
@@ -54,6 +55,12 @@ func main() {
 			log.Fatal(err)
 		}
 		model_name := os.Args[2]
+		fmt.Printf("Do you want migrate %s Model? [y/N]:", model_name)
+		Ans := "n"
+		fmt.Scanf("%s\n",&Ans)
+		if strings.ToLower(Ans) !=  "y"{
+			log.Fatal("not migrate!")
+		}
 		
 		err = database.Migrate(db, model_name)
 		if err != nil {
