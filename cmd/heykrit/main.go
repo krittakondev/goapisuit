@@ -1,10 +1,10 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/krittakondev/goapisuit/internal/database"
@@ -42,6 +42,32 @@ func main() {
 			log.Fatal(err)
 		}
 		log.Print("connect success")
+	case "db:migrate":
+		if len(os.Args) < 3 {
+			fmt.Println("Please Enter Model name")
+			os.Exit(1)
+		}
+		if err := godotenv.Load(); err != nil {
+			log.Fatal(err)
+		}
+		db, err := database.MysqlConnect()
+		if err != nil {
+			log.Fatal(err)
+		}
+		model_name := os.Args[2]
+		fmt.Printf("Do you want migrate %s Model? [y/N]:", model_name)
+		Ans := "n"
+		fmt.Scanf("%s\n",&Ans)
+		if strings.ToLower(Ans) !=  "y"{
+			log.Fatal("not migrate!")
+		}
+		
+		err = database.Migrate(db, model_name)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("%s Migrate Success", model_name)
+		
 
 	default:
 		fmt.Println("Unknown command:", command)

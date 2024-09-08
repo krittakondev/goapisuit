@@ -1,20 +1,153 @@
 package routes
 
-import "github.com/gofiber/fiber/v2"
+import (
 
-type Response{{.Name}} struct{
-	Code int
-	Message string
-	Data interface{}
+	"github.com/gofiber/fiber/v2"
+	"github.com/krittakondev/goapisuit/internal/models"
+	"gorm.io/gorm"
+)
+
+type Response{{.Name}} struct {
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
 }
 
-func (r *Route) {{.Name}}Route(c *fiber.Ctx) error{
-	
+func (r *Route) {{.Name}}_get(c *fiber.Ctx) error {
+	// uncomment below for protect route with jwt  header["Token"] 
+	// if err :=  r.RequireJwtAuth(c); err!=nil{
+	// 	return err
+	// }
+	// fmt.Printf("%+v", c.Locals("user"))
+	limit := c.QueryInt("limit", r.PageLimit)
+	page := c.QueryInt("page", 1)
+	code := 0
+	message := "response from {{.Name}}"
+	id := c.Params("id", "")
+
+
+	var result []models.{{.Name}}
+	var tx *gorm.DB
+	if id != ""{
+		tx = r.DB.Where("id=?", id).Find(&result)
+		message = "response from {{.Name}} id "+ id
+	}else{
+		tx = r.DB.Limit(limit).Offset((page-1)*limit).Order("created_at DESC").Find(&result)
+	}
+
+	if tx.Error != nil {
+		code = -1
+		message = "database error"
+	}
 	resp := Response{{.Name}}{
-		Message: "response from {{.Name}}",
-		Data: []string{},
-	};
-	
-	return c.JSON(resp);
+		Code:    code,
+		Message: message,
+		Data:    result,
+	}
+
+	return c.JSON(resp)
 }
 
+func (r *Route) {{.Name}}_post(c *fiber.Ctx) error {
+	// uncomment below for protect route with jwt  header["Token"] 
+	// if err :=  r.RequireJwtAuth(c); err!=nil{
+	// 	return err
+	// }
+	// fmt.Printf("%+v", c.Locals("user"))
+
+	var body models.{{.Name}};
+	
+	if err := c.BodyParser(&body); err != nil {
+		return c.JSON(Response{{.Name}}{
+			Code: -1,
+			Message: err.Error(),
+			Data: nil,
+		})
+	}
+	body.ID = 0
+	tx := r.DB.Create(&body)
+	if tx.Error != nil {
+		return c.JSON(Response{{.Name}}{
+			Code:    -1,
+			Message: "db error",
+			Data:    nil,
+		})
+	}
+
+	return c.JSON(Response{{.Name}}{
+		Code:    0,
+		Message: "Create {{.Name}} Success",
+		Data:    body,
+	})
+
+}
+
+func (r *Route) {{.Name}}_delete(c *fiber.Ctx) error {
+	// uncomment below for protect route with jwt  header["Token"] 
+	// if err :=  r.RequireJwtAuth(c); err!=nil{
+	// 	return err
+	// }
+	// fmt.Printf("%+v", c.Locals("user"))
+	id := c.Params("id", "")
+	if id == "" {
+		return c.JSON(Response{{.Name}}{
+			Code:    -1,
+			Message: "{{.Name}} Id error",
+			Data:    nil,
+		})
+	}
+
+	tx := r.DB.Delete(&models.{{.Name}}{}, id)
+	if tx.Error != nil {
+		return c.JSON(Response{{.Name}}{
+			Code:    -1,
+			Message: "db error",
+			Data:    nil,
+		})
+	}
+
+	return c.JSON(Response{{.Name}}{
+		Code:    0,
+		Message: "Delete {{.Name}} id "+id+" Success",
+		Data:    nil,
+	})
+}
+
+func (r *Route) {{.Name}}_put(c *fiber.Ctx) error {
+	// uncomment below for protect route with jwt  header["Token"] 
+	// if err :=  r.RequireJwtAuth(c); err!=nil{
+	// 	return err
+	// }
+	// fmt.Printf("%+v", c.Locals("user"))
+	id := c.Params("id", "")
+	if id == "" {
+		return c.JSON(Response{{.Name}}{
+			Code:    -1,
+			Message: "{{.Name}} Id error",
+			Data:    nil,
+		})
+	}
+	var body models.{{.Name}}
+	err := c.BodyParser(&body)
+	if err != nil {
+		return c.JSON(Response{{.Name}}{
+			Code:    -1,
+			Message: err.Error(),
+			Data:    nil,
+		})
+	}
+	tx := r.DB.Model(&models.{{.Name}}{}).Where("id=?", id).Updates(body)
+	if tx.Error != nil {
+		return c.JSON(Response{{.Name}}{
+			Code:    -1,
+			Message: "db error",
+			Data:    nil,
+		})
+	}
+
+	return c.JSON(Response{{.Name}}{
+		Code:    0,
+		Message: "Update {{.Name}} id "+id+" Success",
+		Data:    nil,
+	})
+}

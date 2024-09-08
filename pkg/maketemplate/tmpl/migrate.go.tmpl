@@ -1,0 +1,20 @@
+package database
+
+import (
+	"errors"
+	"strings"
+
+	"github.com/krittakondev/goapisuit/internal/models"
+	"gorm.io/gorm"
+)
+
+func Migrate(db *gorm.DB, model_name string) error{
+	
+	switch strings.ToLower(model_name){
+	
+	{{.Case}}
+
+	default:
+		return errors.New("not found model")
+	}
+}

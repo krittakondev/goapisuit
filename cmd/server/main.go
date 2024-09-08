@@ -11,6 +11,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	routes "github.com/krittakondev/goapisuit/internal/api"
+	"github.com/krittakondev/goapisuit/internal/database"
+	"github.com/krittakondev/goapisuit/internal/middlewares"
 	// routesAll "github.com/krittakondev/goapisuit/internal/api/routes"
 )
 
@@ -22,6 +24,16 @@ func main() {
 		ServerHeader: "goapisuit",
 		AppName:      os.Getenv("APP_NAME"),
 	})
+	db, err := database.MysqlConnect()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// auto migrate if you want
+	db.AutoMigrate(
+		// &models.Users{},
+	)
+
 	HOST := os.Getenv("APP_HOST")
 	PORT := os.Getenv("APP_PORT")
 	if PORT == "" {
@@ -36,7 +48,12 @@ func main() {
 	}
 	api := app.Group(api_prefix)
 
-	mkroute := &routes.Route{}
+	
+	mkroute := &routes.Route{
+		DB: db,
+		PageLimit: 20,
+		RequireJwtAuth: middlewares.RequireJwtAuth,
+	}
 
 	t := reflect.TypeOf(mkroute)
 	reflect_val := reflect.ValueOf(mkroute)
@@ -57,13 +74,40 @@ func main() {
 			}
 			return nil
 		}
-		apipath := strings.ToLower(strings.Split(namemethod, "Route")[0])
-		if apipath == "main"{
+		path_split := strings.Split(strings.ToLower(namemethod), "_")
+		apipath :=  path_split[0]
+		route_method := ""
+		if len(path_split) > 1{
+			route_method = path_split[1]
+		}
+		if apipath == "index"{
 			apipath = ""
 		}
-		log.Print(api_prefix+"/"+apipath+" loaded")
-		api.All("/"+apipath, handler)
+		
+		if route_method == "get"{
+			api.Get("/"+apipath, handler)
+			log.Print(route_method+" "+api_prefix+"/"+apipath)
+			api.Get("/"+apipath+"/:id", handler)
+			if apipath != ""{
+				log.Print(route_method+" "+api_prefix+"/"+apipath+"/:id")
+			}
+		}
+		if route_method == "delete"{
+			api.Delete("/"+apipath+"/:id", handler)
+			log.Print(route_method+" "+api_prefix+"/"+apipath+"/:id")
+		}
+		if route_method == "put"{
+			api.Put("/"+apipath+"/:id", handler)
+			log.Print(route_method+" "+api_prefix+"/"+apipath+"/:id")
+		}
+		if route_method == "post"{
+			api.Post("/"+apipath, handler)
+			log.Print(route_method+" "+api_prefix+"/"+apipath)
+		}
+		// api.All("/"+apipath, handler)
 	}
 
-	app.Listen(HOST + ":" + PORT)
+	if err := app.Listen(HOST + ":" + PORT); err != nil{
+		log.Fatal(err)
+	}
 }
