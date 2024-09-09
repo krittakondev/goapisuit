@@ -91,7 +91,7 @@ Once the setup is complete, you can build upon this project by adding new models
 3. Run server:
 
    ```bash
-   go run cmd/serever/main.go
+   go run cmd/server/main.go
    ```
 
 ## Contributing
