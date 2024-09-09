@@ -37,7 +37,7 @@ To use goapisuit, you need the following installed:
 3. Run your project and generate your first user module:
 
    ```bash
-   go run cmd/server/main.go make user
+   go run cmd/heykrit/main.go make user
    ```
 
    This will automatically create the `user` router and the `user` model under the `internal/models` directory.
@@ -49,7 +49,7 @@ After modifying the model file (e.g., `internal/models/user.go`), you can apply 
 1. Run the migration for the `user` model:
 
    ```bash
-   go run cmd/server/main.go db:migrate user
+   go run cmd/heykrit/main.go db:migrate user
    ```
 
 2. Confirm the migration by typing `y` when prompted.
@@ -80,13 +80,18 @@ Once the setup is complete, you can build upon this project by adding new models
 1. Generate a new `product` module:
 
    ```bash
-   go run cmd/server/main.go make product
+   go run cmd/heykrit/main.go make product
    ```
 
 2. Modify the generated `product` model as needed, and then apply the migration:
 
    ```bash
-   go run cmd/server/main.go db:migrate product
+   go run cmd/heykrit/main.go db:migrate product
+   ```
+3. Run server:
+
+   ```bash
+   go run cmd/serever/main.go
    ```
 
 ## Contributing
