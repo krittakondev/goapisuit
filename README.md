@@ -65,7 +65,7 @@ nameproject/
 │       └── main.go      # Entry point of your project
 ├── internal/
 │   ├── models/          # Contains your data models (e.g., user.go)
-│   └── routers/         # Contains API route handlers
+│   └── api/             # Contains API route handlers
 ├── public/              # Directory for static files (e.g., CSS, JavaScript, images)
 ├── go.mod
 └── go.sum
