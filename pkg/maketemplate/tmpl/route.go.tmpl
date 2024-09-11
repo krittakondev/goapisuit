@@ -15,11 +15,11 @@ type Response{{.Name}} struct {
 
 func (r *Route) {{.Name}}_get(c *fiber.Ctx) error {
 	// uncomment below for protect route with jwt  header["Token"] 
-	// if err :=  r.RequireJwtAuth(c); err!=nil{
+	// if err :=  r.Suit.RequireJwtAuth(c); err!=nil{
 	// 	return err
 	// }
 	// fmt.Printf("%+v", c.Locals("user"))
-	limit := c.QueryInt("limit", r.PageLimit)
+	limit := c.QueryInt("limit", r.Suit.LimitPage)
 	page := c.QueryInt("page", 1)
 	code := 0
 	message := "response from {{.Name}}"
@@ -29,10 +29,10 @@ func (r *Route) {{.Name}}_get(c *fiber.Ctx) error {
 	var result []models.{{.Name}}
 	var tx *gorm.DB
 	if id != ""{
-		tx = r.DB.Where("id=?", id).Find(&result)
+		tx = r.Suit.DB.Where("id=?", id).Find(&result)
 		message = "response from {{.Name}} id "+ id
 	}else{
-		tx = r.DB.Limit(limit).Offset((page-1)*limit).Order("created_at DESC").Find(&result)
+		tx = r.Suit.DB.Limit(limit).Offset((page-1)*limit).Order("created_at DESC").Find(&result)
 	}
 
 	if tx.Error != nil {
@@ -50,7 +50,7 @@ func (r *Route) {{.Name}}_get(c *fiber.Ctx) error {
 
 func (r *Route) {{.Name}}_post(c *fiber.Ctx) error {
 	// uncomment below for protect route with jwt  header["Token"] 
-	// if err :=  r.RequireJwtAuth(c); err!=nil{
+	// if err :=  r.Suit.RequireJwtAuth(c); err!=nil{
 	// 	return err
 	// }
 	// fmt.Printf("%+v", c.Locals("user"))
@@ -65,7 +65,7 @@ func (r *Route) {{.Name}}_post(c *fiber.Ctx) error {
 		})
 	}
 	body.ID = 0
-	tx := r.DB.Create(&body)
+	tx := r.Suit.DB.Create(&body)
 	if tx.Error != nil {
 		return c.JSON(Response{{.Name}}{
 			Code:    -1,
@@ -84,7 +84,7 @@ func (r *Route) {{.Name}}_post(c *fiber.Ctx) error {
 
 func (r *Route) {{.Name}}_delete(c *fiber.Ctx) error {
 	// uncomment below for protect route with jwt  header["Token"] 
-	// if err :=  r.RequireJwtAuth(c); err!=nil{
+	// if err :=  r.Suit.RequireJwtAuth(c); err!=nil{
 	// 	return err
 	// }
 	// fmt.Printf("%+v", c.Locals("user"))
@@ -97,7 +97,7 @@ func (r *Route) {{.Name}}_delete(c *fiber.Ctx) error {
 		})
 	}
 
-	tx := r.DB.Delete(&models.{{.Name}}{}, id)
+	tx := r.Suit.DB.Delete(&models.{{.Name}}{}, id)
 	if tx.Error != nil {
 		return c.JSON(Response{{.Name}}{
 			Code:    -1,
@@ -115,7 +115,7 @@ func (r *Route) {{.Name}}_delete(c *fiber.Ctx) error {
 
 func (r *Route) {{.Name}}_put(c *fiber.Ctx) error {
 	// uncomment below for protect route with jwt  header["Token"] 
-	// if err :=  r.RequireJwtAuth(c); err!=nil{
+	// if err :=  r.Suit.RequireJwtAuth(c); err!=nil{
 	// 	return err
 	// }
 	// fmt.Printf("%+v", c.Locals("user"))
@@ -136,7 +136,7 @@ func (r *Route) {{.Name}}_put(c *fiber.Ctx) error {
 			Data:    nil,
 		})
 	}
-	tx := r.DB.Model(&models.{{.Name}}{}).Where("id=?", id).Updates(body)
+	tx := r.Suit.DB.Model(&models.{{.Name}}{}).Where("id=?", id).Updates(body)
 	if tx.Error != nil {
 		return c.JSON(Response{{.Name}}{
 			Code:    -1,

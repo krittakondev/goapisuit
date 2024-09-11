@@ -62,14 +62,16 @@ func (mr *MakeRoute) New() (arrPath []string, err error) {
 	if err != nil {
 		return 
 	}
-	createPathRoute := "internal/api/" + mr.Name + ".go"
+	createPathRoute := "internal/routes/" + mr.Name + ".go"
 	createPathModel := "internal/models/" + mr.Name + ".go"
 
-	if _, err := os.Stat(createPathRoute); err == nil {
-		log.Fatal(createPathRoute + " is Exist")
+	if _, err = os.Stat(createPathRoute); err == nil {
+		// log.Fatal(createPathRoute + " is Exist")
+		return
 	}
-	if _, err := os.Stat(createPathModel); err == nil {
-		log.Fatal(createPathModel + " is Exist")
+	if _, err = os.Stat(createPathModel); err == nil {
+		// log.Fatal(createPathModel + " is Exist")
+		return
 	}
 
 	file, err := os.OpenFile(createPathRoute, os.O_CREATE|os.O_WRONLY, 0644)

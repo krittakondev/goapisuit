@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/krittakondev/goapisuit"
-	routes "github.com/krittakondev/goapisuit/internal/api"
+	"github.com/krittakondev/goapisuit/internal/routes"
 )
 
 
