@@ -21,6 +21,10 @@ func main() {
 	command := os.Args[1]
 
 	switch command {
+	case "init":
+		// template := &maketemplate.Template{}
+		fmt.Println("create init")
+	
 	case "make":
 		if len(os.Args) < 3 {
 			fmt.Println("Please Enter Route name")
