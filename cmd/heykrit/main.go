@@ -31,8 +31,13 @@ func main() {
 		mkroute := &maketemplate.MakeRoute{
 			Name: utils.CapitalizeFirstChar(routeName),
 		}
-		if err := mkroute.New(); err != nil {
+		if arr, err := mkroute.New(); err != nil {
 			log.Fatal(err)
+		}else{
+			for _, str := range arr{
+				fmt.Printf("created %s\n", str)
+			}
+			
 		}
 	case "db:testconnect":
 		if err := godotenv.Load(); err != nil {

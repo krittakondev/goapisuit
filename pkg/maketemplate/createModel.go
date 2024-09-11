@@ -53,14 +53,14 @@ func recreateMigrateDbFunc() error {
 	return nil
 }
 
-func (mr *MakeRoute) New() error {
+func (mr *MakeRoute) New() (arrPath []string, err error) {
 	tmplRoute, err := template.ParseFiles("pkg/maketemplate/tmpl/route.go.tmpl")
 	if err != nil {
-		return err
+		return 
 	}
 	tmplModel, err := template.ParseFiles("pkg/maketemplate/tmpl/model.go.tmpl")
 	if err != nil {
-		return err
+		return 
 	}
 	createPathRoute := "internal/api/" + mr.Name + ".go"
 	createPathModel := "internal/models/" + mr.Name + ".go"
@@ -74,18 +74,18 @@ func (mr *MakeRoute) New() error {
 
 	file, err := os.OpenFile(createPathRoute, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		log.Fatal(err)
+		return 
 	}
-	if err := tmplRoute.Execute(file, mr); err != nil {
-		return err
+	if err = tmplRoute.Execute(file, mr); err != nil {
+		return 
 	}
 
 	file, err = os.OpenFile(createPathModel, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := tmplModel.Execute(file, mr); err != nil {
-		return err
+	if err = tmplModel.Execute(file, mr); err != nil {
+		return 
 	}
 	file, err = os.OpenFile(".tmpmodels", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
@@ -93,13 +93,17 @@ func (mr *MakeRoute) New() error {
 	}
 	defer file.Close()
 
-	if _, err := file.WriteString(mr.Name + "\n"); err != nil {
-		log.Fatalf("can't overwrite this file: %v", err)
+	if _, err = file.WriteString(mr.Name + "\n"); err != nil {
+		return 
 	}
 
-	if err := recreateMigrateDbFunc(); err != nil {
-		log.Fatal(err)
+	if err = recreateMigrateDbFunc(); err != nil {
+		return
 	}
 
-	return nil
+	arrPath = []string{
+		createPathModel,
+		createPathRoute,
+	}
+	return 
 }
