@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
+	"path/filepath"
 	"strings"
 	"text/template"
+
+	"github.com/krittakondev/goapisuit/pkg/utils"
 )
 
 type MakeRoute struct {
@@ -23,13 +25,11 @@ func recreateMigrateDbFunc() error {
 	if err != nil {
 		return err
 	}
-	cmd := exec.Command("go", "list", "-m")
-	output, err := cmd.Output()
-	if err != nil {
-		log.Printf("Error running go list: %v\n", err)
-	}
 	var tm migrate
-	tm.ProjectName = strings.TrimSpace(string(output))
+	tm.ProjectName, err = utils.GetProjectName()
+	if err != nil {
+		return err
+	}
 	split_name := strings.Split(string(read), "\n")
 	for _, val := range split_name {
 		if val != "" {
@@ -38,7 +38,7 @@ func recreateMigrateDbFunc() error {
 		}
 	}
 
-	tmpl, err := template.ParseFiles("pkg/maketemplate/tmpl/migrate.go.tmpl")
+	tmpl, err := template.ParseFiles(filepath.Join("pkg","maketemplate","tmpl","migrate.go.tmpl"))
 	createPath := "internal/database/migrate.go"
 	if err != nil {
 		return err
@@ -54,11 +54,11 @@ func recreateMigrateDbFunc() error {
 }
 
 func (mr *MakeRoute) New() (arrPath []string, err error) {
-	tmplRoute, err := template.ParseFiles("pkg/maketemplate/tmpl/route.go.tmpl")
+	tmplRoute, err := template.ParseFiles(filepath.Join("pkg","maketemplate","tmpl","route.go.tmpl"))
 	if err != nil {
 		return 
 	}
-	tmplModel, err := template.ParseFiles("pkg/maketemplate/tmpl/model.go.tmpl")
+	tmplModel, err := template.ParseFiles(filepath.Join("pkg","maketemplate","tmpl","model.go.tmpl"))
 	if err != nil {
 		return 
 	}
