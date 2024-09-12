@@ -38,6 +38,7 @@ func recreateMigrateDbFunc() error {
 		}
 	}
 
+	// TODO: change to variable template
 	tmpl, err := template.ParseFiles(filepath.Join("pkg","maketemplate","tmpl","migrate.go.tmpl"))
 	createPath := "internal/database/migrate.go"
 	if err != nil {
@@ -54,6 +55,7 @@ func recreateMigrateDbFunc() error {
 }
 
 func (mr *MakeRoute) New() (arrPath []string, err error) {
+	// TODO: change to variable template
 	tmplRoute, err := template.ParseFiles(filepath.Join("pkg","maketemplate","tmpl","route.go.tmpl"))
 	if err != nil {
 		return 
