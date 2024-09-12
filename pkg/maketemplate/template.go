@@ -89,5 +89,19 @@ BCRYPT_ROUNDS=12
 `
 
 var templatePublicIndex = `
+<h1>public goAPIsuit</h1>
+
+<h2>fetch from /api</h2>
+<div id="result"></div>
+
+<script>
+	async function getData(){
+		const resp = await fetch("/api")
+		const data = await resp.text()
+		document.getElementById("result").innerHTML = data
+	}
+	getData()
+
+</script>
 `
 
