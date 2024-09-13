@@ -2,14 +2,10 @@ package maketemplate
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"os"
-	"path/filepath"
-	"strings"
+	"os/exec"
 	"text/template"
-
-	"github.com/krittakondev/goapisuit/pkg/utils"
 )
 
 type MakeRoute struct {
@@ -17,32 +13,16 @@ type MakeRoute struct {
 	PathProject string
 }
 
-type migrate struct {
-	Case        string
-	ProjectName string
+type Migrate struct {
+	Name        string
+	PathProject string
 }
 
-func recreateMigrateDbFunc() error {
-	read, err := os.ReadFile(".tmpmodels")
-	if err != nil {
-		return err
-	}
-	var tm migrate
-	tm.ProjectName, err = utils.GetProjectName()
-	if err != nil {
-		return err
-	}
-	split_name := strings.Split(string(read), "\n")
-	for _, val := range split_name {
-		if val != "" {
-			tm.Case += fmt.Sprintf("case strings.ToLower(\"%s\"):\n", val)
-			tm.Case += fmt.Sprintf("\treturn db.AutoMigrate(&models.%s{})\n", val)
-		}
-	}
+func (mg *Migrate) Migrate() error {
 
 	// TODO: change to variable template
-	tmpl, err := template.ParseFiles(filepath.Join("pkg","maketemplate","tmpl","migrate.go.tmpl"))
-	createPath := "internal/database/migrate.go"
+	tmpl, err := template.New("dbmigrate").Parse(templateDbMigrate)
+	createPath := "tmp_migrate.go"
 	if err != nil {
 		return err
 	}
@@ -50,14 +30,19 @@ func recreateMigrateDbFunc() error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := tmpl.Execute(file, tm); err != nil {
+	if err := tmpl.Execute(file, mg); err != nil {
 		return err
 	}
+	cmd := exec.Command("go", "run", createPath)
+	if out, err := cmd.CombinedOutput(); err != nil{
+		return errors.New(string(out))
+	}
+	os.Remove(createPath)
+
 	return nil
 }
 
 func (mr *MakeRoute) New() (arrPath []string, err error) {
-	// TODO: change to variable template
 	tmplRoute, err := template.New("route").Parse(templateMakeRouter)
 	if err != nil{
 		return
@@ -102,10 +87,6 @@ func (mr *MakeRoute) New() (arrPath []string, err error) {
 
 	if _, err = file.WriteString(mr.Name + "\n"); err != nil {
 		return 
-	}
-
-	if err = recreateMigrateDbFunc(); err != nil {
-		return
 	}
 
 	arrPath = []string{

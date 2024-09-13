@@ -9,6 +9,7 @@ import (
 
 	"github.com/briandowns/spinner"
 	"github.com/joho/godotenv"
+	"github.com/krittakondev/goapisuit"
 	"github.com/krittakondev/goapisuit/internal/database"
 	"github.com/krittakondev/goapisuit/pkg/maketemplate"
 	"github.com/krittakondev/goapisuit/pkg/utils"
@@ -93,22 +94,47 @@ func main() {
 		if err := godotenv.Load(); err != nil {
 			log.Fatal(err)
 		}
-		db, err := database.MysqlConnect()
-		if err != nil {
-			log.Fatal(err)
-		}
+		// _, err := database.MysqlConnect()
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+		tmpmodels, _ := goapisuit.LoadTmpModel()
 		model_name := os.Args[2]
+		var ModelName string
+		for _, str := range tmpmodels{
+			if strings.ToLower(model_name) == strings.ToLower(str){
+				ModelName = str
+				break
+			}
+		}
+		if ModelName == ""{
+			log.Fatalf("Not found model %s\n", model_name)
+		}
+		
 		fmt.Printf("Do you want migrate %s Model? [y/N]:", model_name)
 		Ans := "n"
 		fmt.Scanf("%s\n", &Ans)
 		if strings.ToLower(Ans) != "y" {
 			log.Fatal("not migrate!")
 		}
-
-		err = database.Migrate(db, model_name)
+		pathProject, err := utils.GetProjectName()
 		if err != nil {
+			log.Fatal(pathProject)
+		}
+		mg := maketemplate.Migrate{
+			PathProject: pathProject,
+			Name: ModelName,
+
+		}
+
+		if err := mg.Migrate(); err != nil{
 			log.Fatal(err)
 		}
+
+		// err = database.Migrate(db, model_name)
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
 		log.Printf("%s Migrate Success", model_name)
 
 	default:

@@ -31,6 +31,15 @@ func init(){
 	}
 }
 
+func LoadTmpModel() (arr []string, err error){
+	read, err := os.ReadFile(".tmpmodels")
+	if err != nil {
+		return
+	}
+	arr = strings.Split(string(read), "\n")
+	return
+}
+
 func New(project_name string) (*Suit, error){
 	
 	conn, err := database.MysqlConnect()

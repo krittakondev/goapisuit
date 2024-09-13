@@ -272,3 +272,20 @@ type {{.Name}} struct {
   // Name       string     `+"`"+`json:"name" gorm:"index"`+"`"+`
 }
 `
+
+var templateDbMigrate = `
+package main
+
+import (
+	"{{.PathProject}}/internal/models"
+	"github.com/krittakondev/goapisuit/internal/database"
+)
+
+func main(){
+	db, err := database.MysqlConnect()
+	if err != nil{
+		panic(err)
+	}
+	db.AutoMigrate(&models.{{.Name}}{})
+}
+`
