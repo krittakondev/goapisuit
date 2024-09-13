@@ -64,9 +64,10 @@ func main() {
 			os.Exit(1)
 		}
 		routeName := os.Args[2]
-
+		PathProject, _ := utils.GetProjectName()
 		mkroute := &maketemplate.MakeRoute{
 			Name: utils.CapitalizeFirstChar(routeName),
+			PathProject: PathProject,
 		}
 		if arr, err := mkroute.New(); err != nil {
 			log.Fatal(err)

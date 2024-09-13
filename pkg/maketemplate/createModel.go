@@ -1,6 +1,7 @@
 package maketemplate
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -13,6 +14,7 @@ import (
 
 type MakeRoute struct {
 	Name string
+	PathProject string
 }
 
 type migrate struct {
@@ -56,24 +58,25 @@ func recreateMigrateDbFunc() error {
 
 func (mr *MakeRoute) New() (arrPath []string, err error) {
 	// TODO: change to variable template
-	tmplRoute, err := template.ParseFiles(filepath.Join("pkg","maketemplate","tmpl","route.go.tmpl"))
-	if err != nil {
-		return 
+	tmplRoute, err := template.New("route").Parse(templateMakeRouter)
+	if err != nil{
+		return
 	}
-	tmplModel, err := template.ParseFiles(filepath.Join("pkg","maketemplate","tmpl","model.go.tmpl"))
-	if err != nil {
-		return 
+	tmplModel, err  := template.New("model").Parse(templateMakeModel)
+	if err != nil{
+		return
 	}
+
 	createPathRoute := "internal/routes/" + mr.Name + ".go"
 	createPathModel := "internal/models/" + mr.Name + ".go"
 
 	if _, err = os.Stat(createPathRoute); err == nil {
-		// log.Fatal(createPathRoute + " is Exist")
-		return
+		err = errors.New(createPathRoute + " is Exist")
+		return 
 	}
 	if _, err = os.Stat(createPathModel); err == nil {
-		// log.Fatal(createPathModel + " is Exist")
-		return
+		err = errors.New(createPathModel + " is Exist")
+		return 
 	}
 
 	file, err := os.OpenFile(createPathRoute, os.O_CREATE|os.O_WRONLY, 0644)
@@ -86,7 +89,7 @@ func (mr *MakeRoute) New() (arrPath []string, err error) {
 
 	file, err = os.OpenFile(createPathModel, os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		log.Fatal(err)
+		return
 	}
 	if err = tmplModel.Execute(file, mr); err != nil {
 		return 
