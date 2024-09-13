@@ -43,7 +43,6 @@ To use goapisuit, you need the following installed:
    go run cmd/server.go
    ```
 
-
 ### Directory Structure
 
 Here's a brief overview of the generated directory structure:
@@ -65,6 +64,7 @@ nameproject/
 ## Usage
 
 Once the setup is complete, you can build upon this project by adding new models and routes using the provided commands. For example, to create a new module for handling products:
+
 
 1. Generate a new `product` Route and Model:
 
@@ -97,4 +97,3 @@ This project is licensed under the MIT License.
 [![GoFiber](https://img.shields.io/badge/GoFiber-API_Framework-blue)](https://gofiber.io/)A web framework that brings lightning-fast performance to your Golang applications.
 [![GORM](https://img.shields.io/badge/GORM-ORM_Library-lightgrey)](https://gorm.io/) 
 A powerful ORM library for Golang, simplifying database handling and migrations.
-

@@ -1,4 +1,4 @@
-package main
+package goapisuit
 
 import (
 	"log"
@@ -10,29 +10,57 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
-	routes "github.com/krittakondev/goapisuit/internal/api"
 	"github.com/krittakondev/goapisuit/internal/database"
 	"github.com/krittakondev/goapisuit/internal/middlewares"
+	"gorm.io/gorm"
 	// routesAll "github.com/krittakondev/goapisuit/internal/api/routes"
 )
 
-func main() {
+
+type Suit struct{
+	ProjectName string
+	DB *gorm.DB
+	LimitPage int
+	RequireJwtAuth func(*fiber.Ctx) error
+}
+
+
+func load_init(){
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("'cp .env.example .env' and edit .env")
 	}
+}
+
+func LoadTmpModel() (arr []string, err error){
+	read, err := os.ReadFile(".tmpmodels")
+	if err != nil {
+		return
+	}
+	arr = strings.Split(string(read), "\n")
+	return
+}
+
+func New(project_name string) (*Suit, error){
+	load_init()
+	conn, err := database.MysqlConnect()
+	if err != nil {
+		return &Suit{}, err
+	}
+
+	return &Suit{
+		RequireJwtAuth: middlewares.RequireJwtAuth,
+		DB: conn,
+		LimitPage: 20,
+		ProjectName: project_name,
+	}, nil
+}
+
+
+func (s *Suit) Run(r interface{}){
 	app := fiber.New(fiber.Config{
 		ServerHeader: "goapisuit",
 		AppName:      os.Getenv("APP_NAME"),
 	})
-	db, err := database.MysqlConnect()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// auto migrate if you want
-	db.AutoMigrate(
-		// &models.Users{},
-	)
 
 	HOST := os.Getenv("APP_HOST")
 	PORT := os.Getenv("APP_PORT")
@@ -48,15 +76,9 @@ func main() {
 	}
 	api := app.Group(api_prefix)
 
-	
-	mkroute := &routes.Route{
-		DB: db,
-		PageLimit: 20,
-		RequireJwtAuth: middlewares.RequireJwtAuth,
-	}
 
-	t := reflect.TypeOf(mkroute)
-	reflect_val := reflect.ValueOf(mkroute)
+	t := reflect.TypeOf(r)
+	reflect_val := reflect.ValueOf(r)
 
 	for i := 0; i < t.NumMethod(); i++ {
 		namemethod := t.Method(i).Name
