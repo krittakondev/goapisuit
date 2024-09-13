@@ -22,37 +22,26 @@ To use goapisuit, you need the following installed:
 
 ### Installation
 
-1. Clone the `goapisuit` repository:
+1. Install CLI `heykrit` for the `goapisuit`:
 
    ```bash
-   git clone https://github.com/krittakondev/goapisuit.git nameproject
+   go install -v github.com/krittakondev/cmd/heykrit
    ```
-
-2. Change into your project directory:
+2. Make your project:
 
    ```bash
+   mkdir nameproject
    cd nameproject
+   go mod init you/projectpath
+   heykrit init
    ```
+3. Config your project in `.env`
 
-3. Run your project and generate your first user module:
+4. Run your project:
 
    ```bash
-   go run cmd/heykrit/main.go make user
+   go run cmd/server.go
    ```
-
-   This will automatically create the `user` router and the `user` model under the `internal/models` directory.
-
-### Database Migration
-
-After modifying the model file (e.g., `internal/models/user.go`), you can apply the migration using the following command:
-
-1. Run the migration for the `user` model:
-
-   ```bash
-   go run cmd/heykrit/main.go db:migrate user
-   ```
-
-2. Confirm the migration by typing `y` when prompted.
 
 ### Directory Structure
 
@@ -61,11 +50,10 @@ Here's a brief overview of the generated directory structure:
 ```
 nameproject/
 ├── cmd/
-│   └── server/
-│       └── main.go      # Entry point of your project
+│   └── server.go        # Entry point of your project
 ├── internal/
 │   ├── models/          # Contains your data models (e.g., user.go)
-│   └── api/             # Contains API route handlers
+│   └── routes/             # Contains API route handlers
 ├── public/              # Directory for static files (e.g., CSS, JavaScript, images)
 ├── go.mod
 └── go.sum
@@ -77,21 +65,23 @@ nameproject/
 
 Once the setup is complete, you can build upon this project by adding new models and routes using the provided commands. For example, to create a new module for handling products:
 
-1. Generate a new `product` module:
+
+1. Generate a new `product` Route and Model:
 
    ```bash
-   go run cmd/heykrit/main.go make product
+   heykrit make product
    ```
+   Generate 2 files `internal/routes/Product.go` and `internal/models/Product.go`
 
-2. Modify the generated `product` model as needed, and then apply the migration:
+2. Modify the generated `internal/routes/Product.go` model as needed, and then apply the migration (gorm model):
 
    ```bash
-   go run cmd/heykrit/main.go db:migrate product
+   heykrit db:migrate product
    ```
 3. Run server:
 
    ```bash
-   go run cmd/server/main.go
+   go run cmd/server.go
    ```
 
 ## Contributing
@@ -101,3 +91,9 @@ If you'd like to contribute to `goapisuit`, feel free to open a pull request or 
 ## License
 
 This project is licensed under the MIT License.
+
+## Credits
+
+[![GoFiber](https://img.shields.io/badge/GoFiber-API_Framework-blue)](https://gofiber.io/)A web framework that brings lightning-fast performance to your Golang applications.
+[![GORM](https://img.shields.io/badge/GORM-ORM_Library-lightgrey)](https://gorm.io/) 
+A powerful ORM library for Golang, simplifying database handling and migrations.
