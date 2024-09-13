@@ -43,7 +43,7 @@ func (t *Template) InitProject(done chan bool) {
 			if err != nil {
 				log.Printf("template error: %s\n", err)
 			}
-			file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+			file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0640)
 			if err != nil {
 				log.Println(err)
 			}
