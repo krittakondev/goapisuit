@@ -25,7 +25,7 @@ type Suit struct{
 }
 
 
-func init(){
+func load_init(){
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("'cp .env.example .env' and edit .env")
 	}
@@ -41,7 +41,7 @@ func LoadTmpModel() (arr []string, err error){
 }
 
 func New(project_name string) (*Suit, error){
-	
+	load_init()
 	conn, err := database.MysqlConnect()
 	if err != nil {
 		return &Suit{}, err
