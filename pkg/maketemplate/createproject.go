@@ -1,8 +1,10 @@
 package maketemplate
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"os/exec"
 
 	"text/template"
 
@@ -55,6 +57,11 @@ func (t *Template) InitProject(done chan bool) {
 			}
 		}
 
+	}
+	fmt.Println("installing...")
+	cmd := exec.Command("go", "get", "github.com/krittakondev/goapisuit")
+	if out, err := cmd.CombinedOutput(); err != nil {
+		fmt.Println(out)
 	}
 
 	done <- true
