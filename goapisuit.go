@@ -4,12 +4,14 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
 
 	// "strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
+	"github.com/krittakondev/goapisuit"
 	"github.com/krittakondev/goapisuit/internal/database"
 	"github.com/krittakondev/goapisuit/internal/middlewares"
 	"gorm.io/gorm"
@@ -22,6 +24,7 @@ type Suit struct{
 	DB *gorm.DB
 	LimitPage int
 	RequireJwtAuth func(*fiber.Ctx) error
+	Fiber *fiber.App
 }
 
 
@@ -46,21 +49,30 @@ func New(project_name string) (*Suit, error){
 	if err != nil {
 		return &Suit{}, err
 	}
+	app := fiber.New(fiber.Config{
+		ServerHeader: "goapisuit",
+		AppName:      os.Getenv("APP_NAME"),
+	})
+
+	limit := 20
+	if os.Getenv("API_LIMIT_PAGE") != ""{
+		limit, err = strconv.Atoi(os.Getenv("API_LIMIT_PAGE"))
+		if err != nil {
+			panic(err)
+		}
+	}
 
 	return &Suit{
 		RequireJwtAuth: middlewares.RequireJwtAuth,
 		DB: conn,
-		LimitPage: 20,
+		LimitPage: limit,
 		ProjectName: project_name,
+		Fiber: app,
 	}, nil
 }
 
 
 func (s *Suit) Run(r interface{}){
-	app := fiber.New(fiber.Config{
-		ServerHeader: "goapisuit",
-		AppName:      os.Getenv("APP_NAME"),
-	})
 
 	HOST := os.Getenv("APP_HOST")
 	PORT := os.Getenv("APP_PORT")
@@ -68,13 +80,13 @@ func (s *Suit) Run(r interface{}){
 		PORT = "3000"
 	}
 
-	app.Static("/", "./public")
+	s.Fiber.Static("/", "./public")
 
 	api_prefix := "/api"
 	if prefix := os.Getenv("API_PREFIX"); prefix != "" {
 		prefix = prefix
 	}
-	api := app.Group(api_prefix)
+	api := s.Fiber.Group(api_prefix)
 
 
 	t := reflect.TypeOf(r)
@@ -129,7 +141,7 @@ func (s *Suit) Run(r interface{}){
 		// api.All("/"+apipath, handler)
 	}
 
-	if err := app.Listen(HOST + ":" + PORT); err != nil{
+	if err := s.Fiber.Listen(HOST + ":" + PORT); err != nil{
 		log.Fatal(err)
 	}
 }
