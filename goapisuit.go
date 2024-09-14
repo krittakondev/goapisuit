@@ -11,7 +11,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
-	"github.com/krittakondev/goapisuit"
 	"github.com/krittakondev/goapisuit/internal/database"
 	"github.com/krittakondev/goapisuit/internal/middlewares"
 	"gorm.io/gorm"
