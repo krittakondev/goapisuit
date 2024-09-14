@@ -11,8 +11,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
-	"github.com/krittakondev/goapisuit/internal/database"
-	"github.com/krittakondev/goapisuit/internal/middlewares"
+	"github.com/krittakondev/goapisuit/database"
+	"github.com/krittakondev/goapisuit/middlewares"
 	"gorm.io/gorm"
 	// routesAll "github.com/krittakondev/goapisuit/internal/api/routes"
 )
@@ -27,7 +27,7 @@ type Suit struct{
 }
 
 
-func load_init(){
+func LoadEnv(){
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("'cp .env.example .env' and edit .env")
 	}
@@ -43,7 +43,7 @@ func LoadTmpModel() (arr []string, err error){
 }
 
 func New(project_name string) (*Suit, error){
-	load_init()
+	LoadEnv()
 	conn, err := database.MysqlConnect()
 	if err != nil {
 		return &Suit{}, err
@@ -118,9 +118,9 @@ func (s *Suit) Run(r interface{}){
 		}
 		
 		if route_method == "get"{
-			api.Get("/"+apipath, handler)
+			// api.Get("/"+apipath, handler)
 			log.Print(route_method+" "+api_prefix+"/"+apipath)
-			api.Get("/"+apipath+"/:id", handler)
+			api.Get("/"+apipath+"/:id?", handler)
 			if apipath != ""{
 				log.Print(route_method+" "+api_prefix+"/"+apipath+"/:id")
 			}
