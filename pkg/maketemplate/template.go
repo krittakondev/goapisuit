@@ -278,7 +278,7 @@ package main
 
 import (
 	"{{.PathProject}}/internal/models"
-	"github.com/krittakondev/goapisuit/internal/database"
+	"github.com/krittakondev/goapisuit/database"
 )
 
 func main(){
