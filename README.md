@@ -73,7 +73,7 @@ Once the setup is complete, you can build upon this project by adding new models
    ```
    Generate 2 files `internal/routes/Product.go` and `internal/models/Product.go`
 
-2. Modify the generated `internal/routes/Product.go` model as needed, and then apply the migration (gorm model):
+2. Modify the generated `internal/models/Product.go` model as needed, and then apply the migration (gorm model):
 
    ```bash
    heykrit db:migrate product
