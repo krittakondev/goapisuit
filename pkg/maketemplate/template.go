@@ -52,9 +52,16 @@ func main(){
 `
 
 
-type envStruct struct{
+type EnvStruct struct{
 	AppName string
+	AppPort string
 	JwtSecret string
+	DbUsername string
+	DbPassword string
+	DbDatabase string
+	DbPort string
+	DbHost string
+	
 }
 
 var templateEnv = `
@@ -78,14 +85,14 @@ JWT_EXPIRE=1d
 # database
 
 DB_CONNECTION=mysql #now support just mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=goapisuit
-DB_USERNAME=root
-DB_PASSWORD=
+DB_HOST={{.DbHost}}
+DB_PORT={{.DbPort}}
+DB_DATABASE={{.DbDatabase}}
+DB_USERNAME={{.DbUsername}}
+DB_PASSWORD={{.DbPassword}}
 
 
-BCRYPT_ROUNDS=12
+#BCRYPT_ROUNDS=12
 `
 
 var templatePublicIndex = `
@@ -288,4 +295,55 @@ func main(){
 	}
 	db.AutoMigrate(&models.{{.Name}}{})
 }
+`
+
+var templateDockerfile = `FROM golang:1.23.1-alpine
+
+WORKDIR /usr/src/app
+
+COPY go.mod go.sum ./
+RUN go mod download && go mod verify
+
+COPY . .
+RUN go build -v -o /usr/local/bin/app cmd/server.go
+
+CMD ["app"]
+`
+
+var templateDockerCompose = `
+services:
+
+  app:
+    build: .
+    restart: unless-stopped
+    network_mode: host
+    volumes: 
+      - .env:/usr/src/app/.env
+    depends_on:
+      db:
+        condition: service_started
+    
+
+  db:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_USER: {{.DbUsername}}
+      MYSQL_PASSWORD: {{.DbPassword}}
+      MYSQL_ROOT_PASSWORD: {{.DbPassword}}
+      MYSQL_DATABASE: {{.DbDatabase}}
+    ports:
+      - "{{.DbPort}}:3306"
+    networks:
+      - backend
+    volumes:
+      - db_suit:/var/lib/mysql
+
+networks:
+  backend:
+
+volumes:
+  db_suit:
+    
+
 `

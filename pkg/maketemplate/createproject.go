@@ -12,11 +12,11 @@ import (
 )
 
 type Template struct {
-	envStruct
+	EnvStruct
 	ProjectName string
 }
 
-func (t *Template) InitProject(done chan bool) {
+func (t *Template) InitProject(done chan bool, useDocker bool) {
 	arrDir := []string{
 		"./cmd",
 		"./public",
@@ -25,17 +25,29 @@ func (t *Template) InitProject(done chan bool) {
 		"./internal/database",
 	}
 	arrFile := map[string]string{
+		".env":                           templateEnv,
 		"./internal/routes/init_suit.go": templateRouter,
 		"./cmd/server.go":                templateServer,
-		".env":                           templateEnv,
 		"./public/index.html":            templatePublicIndex,
+	}
+	arrDockertemplate := map[string]string{
+		"Dockerfile":         templateDockerfile,
+		"docker-compose.yml": templateDockerCompose,
+	}
+	if useDocker {
+		for key, value := range arrDockertemplate {
+			arrFile[key] = value
+		}
+
 	}
 	for _, dir := range arrDir {
 		os.MkdirAll(dir, os.ModePerm)
 	}
 
-	t.envStruct.AppName = t.ProjectName
-	t.envStruct.JwtSecret, _ = utils.GenerateSecret(32)
+	t.EnvStruct.AppName = t.ProjectName
+
+	t.EnvStruct.JwtSecret, _ = utils.GenerateSecret(32)
+
 	for path, filedata := range arrFile {
 		if _, err := os.Stat(path); err == nil {
 			log.Printf("exist: %s\n", path)

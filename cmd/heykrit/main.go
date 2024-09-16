@@ -40,18 +40,43 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			done := make(chan bool)
-			if result == "YES" {
-				template := &maketemplate.Template{
-					ProjectName: projectPath,
-				}
-				go template.InitProject(done)
-				s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
-				s.Start()
-				<- done
-				fmt.Println("done")
-				s.Stop()
+			if result != "YES" {
+				fmt.Println("exit init")
+				os.Exit(0)
 			}
+			useDocker := promptui.Select{
+				Label: fmt.Sprintf("Do you want use Docker?"),
+				Items: []string{"NO", "YES"},
+			}
+			_, resultuseDocker, err := useDocker.Run()
+			if err != nil {
+				log.Fatal(err)
+			}
+			template := &maketemplate.Template{
+				ProjectName: projectPath,
+			}
+			template.EnvStruct.AppPort = "3000"
+			template.EnvStruct.DbDatabase = "goapisuit"
+			template.EnvStruct.DbUsername = "suit"
+			template.EnvStruct.DbHost = "127.0.0.1"
+			template.EnvStruct.DbPort = "3306"
+			
+			if resultuseDocker == "YES"{
+				dbpassword := os.Getenv("DB_PASSWORD")
+				if len(dbpassword) > 0{
+					template.EnvStruct.DbPassword = dbpassword
+				}else{
+					template.EnvStruct.DbPassword, _ = utils.GenerateSecret(32)
+				}
+			}
+			
+			done := make(chan bool)
+			go template.InitProject(done, resultuseDocker=="YES")
+			s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
+			s.Start()
+			<- done
+			fmt.Println("done")
+			s.Stop()
 
 		} else if os.IsNotExist(err) {
 			fmt.Println("Not found go.mod")
