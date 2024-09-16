@@ -337,13 +337,8 @@ services:
     networks:
       - backend
     volumes:
-      - db_suit:/var/lib/mysql
+      - ./db_suit:/var/lib/mysql
 
 networks:
   backend:
-
-volumes:
-  db_suit:
-    
-
 `
