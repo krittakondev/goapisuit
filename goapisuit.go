@@ -114,6 +114,7 @@ func (s *Suit) Run(r interface{}){
 			route_method = path_split[1]
 		}
 		if apipath == "index"{
+			api.Get("/", handler)
 			apipath = ""
 		}
 		
