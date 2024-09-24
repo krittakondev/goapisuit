@@ -47,6 +47,12 @@ func main(){
 	if err != nil{
 		log.Fatal(err)
 	}
+	sqlDB, err := suit.DB.DB()
+	if err != nil {
+		log.Println("failed to get database object:", err)
+	}
+	defer sqlDB.Close()
+
 	suit.Run(&routes.Route{Suit: suit})
 }
 `
