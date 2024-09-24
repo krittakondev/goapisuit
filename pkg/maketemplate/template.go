@@ -43,7 +43,7 @@ import (
 
 
 func main(){
-	suit, err := goapisuit.New("{{.ProjectName}}/goapisuit")
+	suit, err := goapisuit.New("{{.ProjectName}}")
 	if err != nil{
 		log.Fatal(err)
 	}
