@@ -19,10 +19,8 @@ type Migrate struct {
 }
 
 func (mg *Migrate) Migrate() error {
-
-	// TODO: change to variable template
-	tmpl, err := template.New("dbmigrate").Parse(templateDbMigrate)
 	createPath := "tmp_migrate.go"
+	tmpl, err := template.New("dbmigrate").Parse(templateDbMigrate)
 	if err != nil {
 		return err
 	}
@@ -35,6 +33,7 @@ func (mg *Migrate) Migrate() error {
 	}
 	cmd := exec.Command("go", "run", createPath)
 	if out, err := cmd.CombinedOutput(); err != nil{
+		os.Remove(createPath)
 		return errors.New(string(out))
 	}
 	os.Remove(createPath)
