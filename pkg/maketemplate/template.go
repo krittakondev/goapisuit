@@ -52,6 +52,7 @@ func main(){
 		log.Println("failed to get database object:", err)
 	}
 	defer sqlDB.Close()
+	suit.SetupRoutes(&routes.Route{Suit: suit})
 
 	suit.Run(&routes.Route{Suit: suit})
 }
