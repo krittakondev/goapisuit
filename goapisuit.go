@@ -24,6 +24,7 @@ type Suit struct{
 	LimitPage int
 	RequireJwtAuth func(*fiber.Ctx) error
 	Fiber *fiber.App
+	Groups *[]interface{}
 }
 
 
@@ -70,20 +71,10 @@ func New(project_name string) (*Suit, error){
 	}, nil
 }
 
-
-func (s *Suit) Run(r interface{}){
-
-	HOST := os.Getenv("APP_HOST")
-	PORT := os.Getenv("APP_PORT")
-	if PORT == "" {
-		PORT = "3000"
-	}
-
-	s.Fiber.Static("/", "./public")
-
+func (s *Suit) SetupRoutes(r interface{}){
 	api_prefix := "/api"
 	if prefix := os.Getenv("API_PREFIX"); prefix != "" {
-		prefix = prefix
+		api_prefix = prefix
 	}
 	api := s.Fiber.Group(api_prefix)
 
@@ -140,6 +131,20 @@ func (s *Suit) Run(r interface{}){
 		}
 		// api.All("/"+apipath, handler)
 	}
+
+}
+
+func (s *Suit) Run(r interface{}){
+
+	HOST := os.Getenv("APP_HOST")
+	PORT := os.Getenv("APP_PORT")
+	if PORT == "" {
+		PORT = "3000"
+	}
+
+	s.Fiber.Static("/", "./public")
+
+	s.SetupRoutes(r)
 
 	if err := s.Fiber.Listen(HOST + ":" + PORT); err != nil{
 		log.Fatal(err)
