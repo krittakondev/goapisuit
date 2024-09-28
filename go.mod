@@ -16,6 +16,7 @@ require (
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/andybalholm/brotli v1.0.5 // indirect
+	github.com/caarlos0/env/v6 v6.10.1 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/fatih/color v1.7.0 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect

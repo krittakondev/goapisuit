@@ -6,12 +6,12 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"strconv"
 	"strings"
 
 	// "strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/caarlos0/env/v6"
 	"github.com/joho/godotenv"
 	"github.com/krittakondev/goapisuit/database"
 	"github.com/krittakondev/goapisuit/middlewares"
@@ -33,13 +33,31 @@ type Suit struct{
 	Fiber *fiber.App
 	Groups *[]RouteGroup
 	Routes *interface{}
+	Config Config
 }
 
+type Config struct {
+	AppName string `env:"APP_NAME"`
+	AppHost string `env:"APP_HOST"`
+	AppPort string `env:"APP_PORT"`
 
-func LoadEnv(){
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("'cp .env.example .env' and edit .env")
+	ApiPrefix string `env:"API_PREFIX"`
+	ApiLimitPage int `env:"API_LIMIT_PAGE"`
+	DbConnection string `env:"DB_CONNECTION"`
+	
+}
+
+func LoadEnv() Config{
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file")
 	}
+
+	cfg := Config{}
+	if err := env.Parse(&cfg); err != nil {
+		log.Fatalf("Error parsing env variables: %s", err)
+	}
+	return cfg
 }
 
 func LoadTmpModel() (arr []string, err error){
@@ -51,32 +69,33 @@ func LoadTmpModel() (arr []string, err error){
 	return
 }
 
-func New(project_name string) (*Suit, error){
-	LoadEnv()
-	conn, err := database.MysqlConnect()
-	if err != nil {
-		return &Suit{}, err
+func New(project_name string) (suit *Suit, err error){
+	cfg := LoadEnv()
+	suit = &Suit{
+		RequireJwtAuth: middlewares.RequireJwtAuth,
+	}
+	suit.ProjectName = project_name
+	suit.Config = cfg
+	if strings.ToLower(suit.Config.DbConnection) == "mysql"{
+		conn, err := database.MysqlConnect()
+		if err != nil {
+			return suit, err
+		}
+		suit.DB = conn
 	}
 	app := fiber.New(fiber.Config{
 		ServerHeader: "goapisuit",
-		AppName:      os.Getenv("APP_NAME"),
+		AppName:      suit.Config.AppName,
 	})
+	suit.Fiber = app
 
 	limit := 20
-	if os.Getenv("API_LIMIT_PAGE") != ""{
-		limit, err = strconv.Atoi(os.Getenv("API_LIMIT_PAGE"))
-		if err != nil {
-			panic(err)
-		}
+	if cfg.ApiLimitPage != 0 {
+		limit = cfg.ApiLimitPage
 	}
+	suit.LimitPage = limit
 
-	return &Suit{
-		RequireJwtAuth: middlewares.RequireJwtAuth,
-		DB: conn,
-		LimitPage: limit,
-		ProjectName: project_name,
-		Fiber: app,
-	}, nil
+	return suit, nil
 }
 
 func (s *Suit) groupScan()error{
