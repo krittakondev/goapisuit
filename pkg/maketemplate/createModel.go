@@ -40,26 +40,41 @@ func (mg *Migrate) Migrate() error {
 
 	return nil
 }
-
-func (mr *MakeRoute) New() (arrPath []string, err error) {
-	tmplRoute, err := template.New("route").Parse(templateMakeRouter)
-	if err != nil{
-		return
-	}
+func (mr *MakeRoute) NewModel() (createPathModel string, err error) {
 	tmplModel, err  := template.New("model").Parse(templateMakeModel)
 	if err != nil{
 		return
 	}
+	createPathModel = "internal/models/" + mr.Name + ".go"
+	if _, err = os.Stat(createPathModel); err == nil {
+		err = errors.New(createPathModel + " is Exist")
+		return 
+	}
+	file, err := os.OpenFile(createPathModel, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+	if err = tmplModel.Execute(file, mr); err != nil {
+		return 
+	}
+	filetmp, err := os.OpenFile(".tmpmodels", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatalf("can't open file: %v", err)
+	}
+	defer filetmp.Close()
+	return
+}
 
-	createPathRoute := "internal/routes/" + mr.Name + ".go"
-	createPathModel := "internal/models/" + mr.Name + ".go"
+func (mr *MakeRoute) NewRoute() (createPathRoute string, err error) {
+	tmplRoute, err := template.New("route").Parse(templateMakeRouter)
+	if err != nil{
+		return
+	}
+	createPathRoute = "internal/routes/" + mr.Name + ".go"
 
 	if _, err = os.Stat(createPathRoute); err == nil {
 		err = errors.New(createPathRoute + " is Exist")
-		return 
-	}
-	if _, err = os.Stat(createPathModel); err == nil {
-		err = errors.New(createPathModel + " is Exist")
 		return 
 	}
 
@@ -67,25 +82,22 @@ func (mr *MakeRoute) New() (arrPath []string, err error) {
 	if err != nil {
 		return 
 	}
+	defer file.Close()
 	if err = tmplRoute.Execute(file, mr); err != nil {
 		return 
 	}
 
-	file, err = os.OpenFile(createPathModel, os.O_CREATE|os.O_WRONLY, 0644)
+	_, err = file.WriteString(mr.Name + "\n")
+	return
+}
+func (mr *MakeRoute) New() (arrPath []string, err error) {
+	createPathModel, err :=  mr.NewModel()
 	if err != nil {
 		return
 	}
-	if err = tmplModel.Execute(file, mr); err != nil {
-		return 
-	}
-	file, err = os.OpenFile(".tmpmodels", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	createPathRoute, err :=  mr.NewRoute()
 	if err != nil {
-		log.Fatalf("can't open file: %v", err)
-	}
-	defer file.Close()
-
-	if _, err = file.WriteString(mr.Name + "\n"); err != nil {
-		return 
+		return
 	}
 
 	arrPath = []string{

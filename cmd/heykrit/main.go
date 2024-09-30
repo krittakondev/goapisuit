@@ -103,6 +103,38 @@ func main() {
 			}
 
 		}
+	case "make:route":
+		if len(os.Args) < 3 {
+			fmt.Println("Please Enter Route name")
+			os.Exit(1)
+		}
+		routeName := os.Args[2]
+		PathProject, _ := utils.GetProjectName()
+		mkroute := &maketemplate.MakeRoute{
+			Name: utils.CapitalizeFirstChar(routeName),
+			PathProject: PathProject,
+		}
+		if str, err := mkroute.NewRoute(); err != nil {
+			log.Fatal(err)
+		} else {
+			fmt.Printf("created %s\n", str)
+		}
+	case "make:model":
+		if len(os.Args) < 3 {
+			fmt.Println("Please Enter Model name")
+			os.Exit(1)
+		}
+		routeName := os.Args[2]
+		PathProject, _ := utils.GetProjectName()
+		mkroute := &maketemplate.MakeRoute{
+			Name: utils.CapitalizeFirstChar(routeName),
+			PathProject: PathProject,
+		}
+		if str, err := mkroute.NewModel(); err != nil {
+			log.Fatal(err)
+		} else {
+			fmt.Printf("created %s\n", str)
+		}
 	case "db:testconnect":
 		if err := godotenv.Load(); err != nil {
 			log.Fatal(err)
