@@ -31,7 +31,6 @@ type Suit struct{
 	LimitPage int
 	RequireJwtAuth func(*fiber.Ctx) error
 	Fiber *fiber.App
-	Groups *[]RouteGroup
 	Routes *interface{}
 	Config Config
 }
@@ -98,24 +97,27 @@ func New(project_name string) (suit *Suit, err error){
 	return suit, nil
 }
 
-func (s *Suit) groupScan()error{
-	err := filepath.Walk("internal/routes", func(path string, info os.FileInfo, err error) error {
+func (s *Suit) GroupScan()(groups []string, err error) {
+	err = filepath.Walk("internal/routes", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-
-		// ตรวจสอบว่าเป็นไฟล์ Go และไม่ใช่ main package
-		if strings.HasSuffix(info.Name(), ".go") && info.Name() != "main.go" {
-			// นำ path ของโฟลเดอร์มาสร้าง API group
+		if strings.HasSuffix(info.Name(), "init_suit.go") {
 			groupPath := strings.TrimPrefix(filepath.Dir(path), "internal/routes")
-			groupPath = strings.ReplaceAll(groupPath, "\\", "/") // สำหรับ Windows
-			groupPath = "/" + strings.Trim(groupPath, "/")
-
-			fmt.Println(groupPath)
+			groupPath = strings.ReplaceAll(groupPath, "\\", "/") 
+			if groupPath == "" {
+				groupPath = "/"
+			} else {
+				groupPath = "/" + strings.Trim(groupPath, "/") 
+			}
+			if groupPath != "/"{
+				fmt.Println(groupPath)
+				groups = append(groups, groupPath)
+			}
 		}
 		return nil
 	})
-	return err
+	return groups, err
 }
 
 func (s *Suit) SetupGroups(api_prefix string, r interface{}, middleware ...fiber.Handler){
