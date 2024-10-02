@@ -124,6 +124,13 @@ func (s *Suit) SetupGroups(api_prefix string, r interface{}, middleware ...fiber
 	t := reflect.TypeOf(r)
 	reflect_val := reflect.ValueOf(r)
 
+	if reflect_val.Kind() == reflect.Ptr {
+		val := reflect_val.Elem()
+
+		field := val.FieldByName("Suit")
+		newVal := reflect.ValueOf(s)
+		field.Set(newVal)
+	} 
 	for i := 0; i < t.NumMethod(); i++ {
 		namemethod := t.Method(i).Name
 		method := reflect.Value.MethodByName(reflect_val, namemethod)
