@@ -37,6 +37,7 @@ import (
 
 	"github.com/krittakondev/goapisuit"
 	"{{.ProjectName}}/internal/routes"
+	"{{.ProjectName}}/internal/setup"
 )
 
 
@@ -47,14 +48,18 @@ func main(){
 	if err != nil{
 		log.Fatal(err)
 	}
-	sqlDB, err := suit.DB.DB()
-	if err != nil {
-		log.Println("failed to get database object:", err)
+	if suit.Config.DbConnection == "mysql"{
+	
+		sqlDB, err := suit.DB.DB()
+		if err != nil {
+			log.Println("failed to get database object:", err)
+		}
+		defer sqlDB.Close()
 	}
-	defer sqlDB.Close()
-	suit.SetupRoutes(&routes.Route{Suit: suit})
+	suit.SetupRoutes(&routes.Route{})
+	setup.GroupsSetup(suit)
 
-	suit.Run(&routes.Route{Suit: suit})
+	suit.Run()
 }
 `
 
@@ -349,3 +354,24 @@ services:
 networks:
   backend:
 `
+
+
+var templateGroupsSetupCall = `
+	suit.SetupGroups(suit.Config.ApiPrefix+"{{.GroupPath}}", &route_{{.GroupName}}.Route{})
+`
+
+var templateGroupsSetupImport = `
+	route_{{.GroupName}} "{{.ProjectName}}/internal/routes{{.GroupPath}}"
+`
+var templateGroupsSetup = `package setup
+
+import (
+	{{.ImportRouteGroup}}
+	"github.com/krittakondev/goapisuit"
+)
+
+func GroupsSetup(suit *goapisuit.Suit){
+	{{.SetupGroups}}
+}
+`
+
