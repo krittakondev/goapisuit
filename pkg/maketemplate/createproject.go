@@ -23,10 +23,12 @@ func (t *Template) InitProject(done chan bool, useDocker bool) {
 		"./internal/routes",
 		"./internal/models",
 		"./internal/database",
+		"./internal/setup",
 	}
 	arrFile := map[string]string{
 		".env":                           templateEnv,
 		"./internal/routes/init_suit.go": templateRouter,
+		"./internal/setup/groupsloader.go": templateRouter,
 		"./cmd/server.go":                templateServer,
 		"./public/index.html":            templatePublicIndex,
 	}
