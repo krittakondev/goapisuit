@@ -133,6 +133,7 @@ func handlerReflect(reflect_val reflect.Value, namemethod string) func(c *fiber.
 }
 
 func (s *Suit) SetupGroups(api_prefix string, r interface{}, middleware ...fiber.Handler){
+	api_prefix = strings.ReplaceAll(api_prefix, "//", "/")
 	api := s.Fiber.Group(api_prefix)
 	
 	t := reflect.TypeOf(r)
