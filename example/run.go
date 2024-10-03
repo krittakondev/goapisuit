@@ -5,6 +5,7 @@ import (
 
 	"github.com/krittakondev/goapisuit"
 	"github.com/krittakondev/goapisuit/internal/routes"
+	"github.com/krittakondev/goapisuit/internal/setup"
 )
 
 
@@ -15,5 +16,9 @@ func main(){
 	if err != nil{
 		log.Fatal(err)
 	}
-	suit.Run(&routes.Route{Suit: suit})
+
+	suit.SetupRoutes(&routes.Route{})
+	setup.GroupsSetup(suit)
+
+	suit.Run()
 }
