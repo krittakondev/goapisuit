@@ -10,19 +10,14 @@ import (
 
 	// "strings"
 
-	"github.com/gofiber/fiber/v2"
 	"github.com/caarlos0/env/v6"
+	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"github.com/krittakondev/goapisuit/database"
 	"github.com/krittakondev/goapisuit/middlewares"
 	"gorm.io/gorm"
 	// routesAll "github.com/krittakondev/goapisuit/internal/api/routes"
 )
-
-type RouteGroup struct{
-	Parent string
-	Children *[]interface{}
-}
 
 
 type Suit struct{
@@ -119,6 +114,23 @@ func (s *Suit) GroupScan()(groups []string, err error) {
 	})
 	return groups, err
 }
+func handlerReflect(reflect_val reflect.Value, namemethod string) func(c *fiber.Ctx) error{
+
+	method := reflect.Value.MethodByName(reflect_val, namemethod)
+	return func(c *fiber.Ctx) error {
+		// Prepare the arguments for the function
+		args := []reflect.Value{reflect.ValueOf(c)}
+
+		// Call the method
+		results := method.Call(args)
+
+		// Check for an error and return it
+		if len(results) > 0 && results[0].Interface() != nil {
+			return results[0].Interface().(error)
+		}
+		return nil
+	}
+}
 
 func (s *Suit) SetupGroups(api_prefix string, r interface{}, middleware ...fiber.Handler){
 	api := s.Fiber.Group(api_prefix)
@@ -133,22 +145,18 @@ func (s *Suit) SetupGroups(api_prefix string, r interface{}, middleware ...fiber
 		newVal := reflect.ValueOf(s)
 		field.Set(newVal)
 	} 
+	first_middle := reflect_val.MethodByName("Middleware")
+	if first_middle.Kind() != reflect.Invalid{
+		
+		handler_middle := handlerReflect(reflect_val, "Middleware")
+		api.Use(handler_middle)
+	}
 	for i := 0; i < t.NumMethod(); i++ {
+
 		namemethod := t.Method(i).Name
-		method := reflect.Value.MethodByName(reflect_val, namemethod)
-		handler := func(c *fiber.Ctx) error {
-			// Prepare the arguments for the function
-			args := []reflect.Value{reflect.ValueOf(c)}
 
-			// Call the method
-			results := method.Call(args)
+		handler := handlerReflect(reflect_val, namemethod)
 
-			// Check for an error and return it
-			if len(results) > 0 && results[0].Interface() != nil {
-				return results[0].Interface().(error)
-			}
-			return nil
-		}
 		path_split := strings.Split(strings.ToLower(namemethod), "_")
 		apipath :=  path_split[0]
 		for _, mid := range middleware{
