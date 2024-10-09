@@ -1,6 +1,9 @@
 package utils
 
-import "strings"
+import (
+	"regexp"
+	"strings"
+)
 
 
 func CapitalizeFirstChar(s string) string {
@@ -17,4 +20,11 @@ func KebabToCamel(s string) string {
 		words[i] = strings.Title(words[i])
 	}
 	return strings.Join(words, "")
+}
+func CamelToKebab(s string) string {
+	// Regular expression to find uppercase letters
+	re := regexp.MustCompile("([a-z])([A-Z])")
+	// Insert a hyphen between lowercase-uppercase pairs and convert to lowercase
+	kebab := re.ReplaceAllString(s, "${1}-${2}")
+	return strings.ToLower(kebab)
 }
