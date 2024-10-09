@@ -128,6 +128,7 @@ var templatePublicIndex = `
 var templateMakeRouter = `package routes
 
 import (
+	"log"
 
 	"github.com/gofiber/fiber/v2"
 	"{{.PathProject}}/internal/models"
@@ -141,7 +142,7 @@ type Response{{.Name}} struct {
 }
 
 func (r *Route) Middleware(c *fiber.Ctx) error {
-	fmt.Println("pass middleware {{.Name}}")
+	log.Println("pass middleware {{.Name}}")
 	return c.Next()
 }
 

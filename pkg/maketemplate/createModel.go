@@ -63,6 +63,7 @@ func (mr *MakeRoute) NewModel() (createPathModel string, err error) {
 		log.Fatalf("can't open file: %v", err)
 	}
 	defer filetmp.Close()
+	_, err = filetmp.WriteString(mr.Name + "\n")
 	return
 }
 
@@ -87,7 +88,6 @@ func (mr *MakeRoute) NewRoute() (createPathRoute string, err error) {
 		return 
 	}
 
-	_, err = file.WriteString(mr.Name + "\n")
 	return
 }
 func (mr *MakeRoute) New() (arrPath []string, err error) {
