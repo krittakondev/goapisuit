@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"strings"
 
 	// "strings"
@@ -211,9 +212,10 @@ func (s *Suit) SetupGroups(api_prefix string, r interface{}, middleware ...fiber
 	if err != nil {
 		return
 	}
+	re := regexp.MustCompile(`/+`)
 	for _, val := range routes {
-		join_path := strings.ReplaceAll(fmt.Sprintf("/%s/%s/%s", api_prefix, val["path"], val["param"]), "//", "/")
-		fmt.Printf("loaded %s\t%s\n", strings.ToUpper(val["method"]), join_path)
+		join_path := re.ReplaceAllString(fmt.Sprintf("/%s/%s/%s", api_prefix, val["path"], val["param"]), "/")
+		fmt.Printf("%s\n%s\t%s\n",strings.Repeat("-", 30), strings.ToUpper(val["method"]), join_path)
 
 	}
 	return
