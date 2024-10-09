@@ -19,15 +19,14 @@ import (
 	// routesAll "github.com/krittakondev/goapisuit/internal/api/routes"
 )
 
-
-type Suit struct{
-	ProjectName string
-	DB *gorm.DB
-	LimitPage int
+type Suit struct {
+	ProjectName    string
+	DB             *gorm.DB
+	LimitPage      int
 	RequireJwtAuth func(*fiber.Ctx) error
-	Fiber *fiber.App
-	Routes *interface{}
-	Config Config
+	Fiber          *fiber.App
+	Routes         *interface{}
+	Config         Config
 }
 
 type Config struct {
@@ -35,13 +34,12 @@ type Config struct {
 	AppHost string `env:"APP_HOST"`
 	AppPort string `env:"APP_PORT"`
 
-	ApiPrefix string `env:"API_PREFIX"`
-	ApiLimitPage int `env:"API_LIMIT_PAGE"`
+	ApiPrefix    string `env:"API_PREFIX"`
+	ApiLimitPage int    `env:"API_LIMIT_PAGE"`
 	DbConnection string `env:"DB_CONNECTION"`
-	
 }
 
-func LoadEnv() Config{
+func LoadEnv() Config {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("Error loading .env file")
@@ -54,7 +52,7 @@ func LoadEnv() Config{
 	return cfg
 }
 
-func LoadTmpModel() (arr []string, err error){
+func LoadTmpModel() (arr []string, err error) {
 	read, err := os.ReadFile(".tmpmodels")
 	if err != nil {
 		return
@@ -63,14 +61,14 @@ func LoadTmpModel() (arr []string, err error){
 	return
 }
 
-func New(project_name string) (suit *Suit, err error){
+func New(project_name string) (suit *Suit, err error) {
 	cfg := LoadEnv()
 	suit = &Suit{
 		RequireJwtAuth: middlewares.RequireJwtAuth,
 	}
 	suit.ProjectName = project_name
 	suit.Config = cfg
-	if strings.ToLower(suit.Config.DbConnection) == "mysql"{
+	if strings.ToLower(suit.Config.DbConnection) == "mysql" {
 		conn, err := database.MysqlConnect()
 		if err != nil {
 			return suit, err
@@ -92,20 +90,20 @@ func New(project_name string) (suit *Suit, err error){
 	return suit, nil
 }
 
-func (s *Suit) GroupScan()(groups []string, err error) {
+func (s *Suit) GroupScan() (groups []string, err error) {
 	err = filepath.Walk("internal/routes", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 		if strings.HasSuffix(info.Name(), "init_suit.go") {
 			groupPath := strings.TrimPrefix(filepath.Dir(path), "internal/routes")
-			groupPath = strings.ReplaceAll(groupPath, "\\", "/") 
+			groupPath = strings.ReplaceAll(groupPath, "\\", "/")
 			if groupPath == "" {
 				groupPath = "/"
 			} else {
-				groupPath = "/" + strings.Trim(groupPath, "/") 
+				groupPath = "/" + strings.Trim(groupPath, "/")
 			}
-			if groupPath != "/"{
+			if groupPath != "/" {
 				fmt.Println(groupPath)
 				groups = append(groups, groupPath)
 			}
@@ -114,7 +112,7 @@ func (s *Suit) GroupScan()(groups []string, err error) {
 	})
 	return groups, err
 }
-func handlerReflect(reflect_val reflect.Value, namemethod string) func(c *fiber.Ctx) error{
+func handlerReflect(reflect_val reflect.Value, namemethod string) func(c *fiber.Ctx) error {
 
 	method := reflect.Value.MethodByName(reflect_val, namemethod)
 	return func(c *fiber.Ctx) error {
@@ -132,11 +130,65 @@ func handlerReflect(reflect_val reflect.Value, namemethod string) func(c *fiber.
 	}
 }
 
-func (s *Suit) SetupGroups(api_prefix string, r interface{}, middleware ...fiber.Handler){
+func setupDynamicRoutes(api fiber.Router, r interface{}) (routes []map[string]string, err error) {
+	defer func() {
+		if err := recover(); err != nil {
+			return
+		}
+	}()
+	t := reflect.TypeOf(r)
+	reflect_val := reflect.ValueOf(r)
+	for i := 0; i < t.NumMethod(); i++ {
+
+		namemethod := t.Method(i).Name
+
+		handler := handlerReflect(reflect_val, namemethod)
+
+		path_split := strings.Split(strings.ToLower(namemethod), "_")
+		apipath := path_split[0]
+		route_method := ""
+		if len(path_split) > 1 {
+			route_method = path_split[1]
+		}
+		if apipath == "index" {
+			api.Get("/", handler)
+			apipath = ""
+		}
+
+		if route_method == "get" {
+			// api.Get("/"+apipath, handler)
+			// log.Print(route_method + " " + api_prefix + "/" + apipath)
+			routes = append(routes, map[string]string{"method": route_method, "path": apipath})
+			api.Get("/"+apipath+"/:id?", handler)
+			if apipath != "" {
+				// log.Print(route_method + " " + api_prefix + "/" + apipath + "/:id")
+				routes = append(routes, map[string]string{"method": route_method, "path": apipath, "param": ":id"})
+			}
+		}
+		if route_method == "delete" {
+			api.Delete("/"+apipath+"/:id", handler)
+			// log.Print(route_method + " " + api_prefix + "/" + apipath + "/:id")
+			routes = append(routes, map[string]string{"method": route_method, "path": apipath, "param": ":id"})
+		}
+		if route_method == "put" {
+			api.Put("/"+apipath+"/:id", handler)
+			routes = append(routes, map[string]string{"method": route_method, "path": apipath, "param": ":id"})
+			// log.Print(route_method + " " + api_prefix + "/" + apipath + "/:id")
+		}
+		if route_method == "post" {
+			api.Post("/"+apipath, handler)
+			routes = append(routes, map[string]string{"method": route_method, "path": apipath})
+			// log.Print(route_method + " " + api_prefix + "/" + apipath)
+		}
+	}
+	return
+
+}
+
+func (s *Suit) SetupGroups(api_prefix string, r interface{}, middleware ...fiber.Handler) (err error) {
 	api_prefix = strings.ReplaceAll(api_prefix, "//", "/")
 	api := s.Fiber.Group(api_prefix)
-	
-	t := reflect.TypeOf(r)
+
 	reflect_val := reflect.ValueOf(r)
 
 	if reflect_val.Kind() == reflect.Ptr {
@@ -145,68 +197,38 @@ func (s *Suit) SetupGroups(api_prefix string, r interface{}, middleware ...fiber
 		field := val.FieldByName("Suit")
 		newVal := reflect.ValueOf(s)
 		field.Set(newVal)
-	} 
+	}
 	first_middle := reflect_val.MethodByName("Middleware")
-	if first_middle.Kind() != reflect.Invalid{
-		
+	if first_middle.Kind() != reflect.Invalid {
+
 		handler_middle := handlerReflect(reflect_val, "Middleware")
 		api.Use(handler_middle)
 	}
-	for i := 0; i < t.NumMethod(); i++ {
-
-		namemethod := t.Method(i).Name
-
-		handler := handlerReflect(reflect_val, namemethod)
-
-		path_split := strings.Split(strings.ToLower(namemethod), "_")
-		apipath :=  path_split[0]
-		for _, mid := range middleware{
-			api.Use(mid)
-		}
-		route_method := ""
-		if len(path_split) > 1{
-			route_method = path_split[1]
-		}
-		if apipath == "index"{
-			api.Get("/", handler)
-			apipath = ""
-		}
-		
-		if route_method == "get"{
-			// api.Get("/"+apipath, handler)
-			log.Print(route_method+" "+api_prefix+"/"+apipath)
-			api.Get("/"+apipath+"/:id?", handler)
-			if apipath != ""{
-				log.Print(route_method+" "+api_prefix+"/"+apipath+"/:id")
-			}
-		}
-		if route_method == "delete"{
-			api.Delete("/"+apipath+"/:id", handler)
-			log.Print(route_method+" "+api_prefix+"/"+apipath+"/:id")
-		}
-		if route_method == "put"{
-			api.Put("/"+apipath+"/:id", handler)
-			log.Print(route_method+" "+api_prefix+"/"+apipath+"/:id")
-		}
-		if route_method == "post"{
-			api.Post("/"+apipath, handler)
-			log.Print(route_method+" "+api_prefix+"/"+apipath)
-		}
-		// api.All("/"+apipath, handler)
+	for _, mid := range middleware {
+		api.Use(mid)
 	}
+	routes, err := setupDynamicRoutes(api, r)
+	if err != nil {
+		return
+	}
+	for _, val := range routes {
+		join_path := strings.ReplaceAll(fmt.Sprintf("/%s/%s/%s", api_prefix, val["path"], val["param"]), "//", "/")
+		fmt.Printf("loaded %s\t%s\n", strings.ToUpper(val["method"]), join_path)
 
+	}
+	return
 }
 
-func (s *Suit) SetupRoutes(r interface{}){
+func (s *Suit) SetupRoutes(r interface{}) {
 	api_prefix := "/api"
 	if prefix := os.Getenv("API_PREFIX"); prefix != "" {
 		api_prefix = prefix
 	}
-	
+
 	s.SetupGroups(api_prefix, r)
 }
 
-func (s *Suit) Run(){
+func (s *Suit) Run() {
 
 	HOST := os.Getenv("APP_HOST")
 	PORT := os.Getenv("APP_PORT")
@@ -216,8 +238,7 @@ func (s *Suit) Run(){
 
 	s.Fiber.Static("/", "./public")
 
-
-	if err := s.Fiber.Listen(HOST + ":" + PORT); err != nil{
+	if err := s.Fiber.Listen(HOST + ":" + PORT); err != nil {
 		log.Fatal(err)
 	}
 }
