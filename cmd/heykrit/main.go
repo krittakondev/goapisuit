@@ -104,7 +104,7 @@ func main() {
 		argsScan("make [...args]", &routeName)
 		PathProject, _ := utils.GetProjectName()
 		mkroute := &maketemplate.MakeRoute{
-			Name: utils.CapitalizeFirstChar(routeName),
+			Name: utils.KebabToCamel(routeName),
 			PathProject: PathProject,
 		}
 		if arr, err := mkroute.New(); err != nil {
@@ -120,7 +120,7 @@ func main() {
 		argsScan("make:route [...args]", &routeName)
 		PathProject, _ := utils.GetProjectName()
 		mkroute := &maketemplate.MakeRoute{
-			Name: utils.CapitalizeFirstChar(routeName),
+			Name: utils.KebabToCamel(routeName),
 			PathProject: PathProject,
 		}
 		if str, err := mkroute.NewRoute(); err != nil {
@@ -133,7 +133,7 @@ func main() {
 		argsScan("make:model [...args]", &routeName)
 		PathProject, _ := utils.GetProjectName()
 		mkroute := &maketemplate.MakeRoute{
-			Name: utils.CapitalizeFirstChar(routeName),
+			Name: utils.KebabToCamel(routeName),
 			PathProject: PathProject,
 		}
 		if str, err := mkroute.NewModel(); err != nil {
