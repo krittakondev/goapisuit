@@ -16,6 +16,21 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
+func argsScan(opt_name string, args ...*string) (err error){
+	len_scan := 2+len(args)
+	if len(os.Args) < len_scan {
+		fmt.Printf(`Error: Missing %d required arguments.
+Usage: heykrit %s`, len_scan-len(os.Args), opt_name)
+		fmt.Println()
+		os.Exit(1)
+	}
+	for i, _ := range args{
+		*args[i] = os.Args[2+i]
+	}
+	return
+}
+
+
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("You need to pass a command")
@@ -85,11 +100,8 @@ func main() {
 		}
 
 	case "make":
-		if len(os.Args) < 3 {
-			fmt.Println("Please Enter Route name")
-			os.Exit(1)
-		}
-		routeName := os.Args[2]
+		var routeName string
+		argsScan("make [...args]", &routeName)
 		PathProject, _ := utils.GetProjectName()
 		mkroute := &maketemplate.MakeRoute{
 			Name: utils.CapitalizeFirstChar(routeName),
@@ -104,11 +116,8 @@ func main() {
 
 		}
 	case "make:route":
-		if len(os.Args) < 3 {
-			fmt.Println("Please Enter Route name")
-			os.Exit(1)
-		}
-		routeName := os.Args[2]
+		var routeName string
+		argsScan("make:route [...args]", &routeName)
 		PathProject, _ := utils.GetProjectName()
 		mkroute := &maketemplate.MakeRoute{
 			Name: utils.CapitalizeFirstChar(routeName),
@@ -120,11 +129,8 @@ func main() {
 			fmt.Printf("created %s\n", str)
 		}
 	case "make:model":
-		if len(os.Args) < 3 {
-			fmt.Println("Please Enter Model name")
-			os.Exit(1)
-		}
-		routeName := os.Args[2]
+		var routeName string
+		argsScan("make:model [...args]", &routeName)
 		PathProject, _ := utils.GetProjectName()
 		mkroute := &maketemplate.MakeRoute{
 			Name: utils.CapitalizeFirstChar(routeName),
@@ -144,10 +150,9 @@ func main() {
 		}
 		log.Print("connect success")
 	case "db:migrate":
-		if len(os.Args) < 3 {
-			fmt.Println("Please Enter Model name")
-			os.Exit(1)
-		}
+		var model_name string
+		argsScan("db:migrate [...args]", &model_name)
+
 		if err := godotenv.Load(); err != nil {
 			log.Fatal(err)
 		}
@@ -156,7 +161,6 @@ func main() {
 		// 	log.Fatal(err)
 		// }
 		tmpmodels, _ := goapisuit.LoadTmpModel()
-		model_name := os.Args[2]
 		var ModelName string
 		for _, str := range tmpmodels{
 			if strings.ToLower(model_name) == strings.ToLower(str){
