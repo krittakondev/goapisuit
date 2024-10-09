@@ -11,6 +11,7 @@ func CapitalizeFirstChar(s string) string {
 }
 
 func KebabToCamel(s string) string {
+	s = strings.ToLower(s)
 	words := strings.Split(s, "-")
 	for i := range words {
 		words[i] = strings.Title(words[i])

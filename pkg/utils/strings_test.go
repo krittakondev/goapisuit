@@ -24,6 +24,10 @@ func Test_KebabToCamel(t *testing.T) {
 			args: "TEST-CASE",
 			want: "TestCase",
 		},
+		{
+			args: "TESTCASE",
+			want: "Testcase",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
