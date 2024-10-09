@@ -15,6 +15,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	"github.com/krittakondev/goapisuit/database"
+	"github.com/krittakondev/goapisuit/pkg/utils"
 	"github.com/krittakondev/goapisuit/middlewares"
 	"gorm.io/gorm"
 	// routesAll "github.com/krittakondev/goapisuit/internal/api/routes"
@@ -145,7 +146,7 @@ func setupDynamicRoutes(api fiber.Router, r interface{}) (routes []map[string]st
 
 		handler := handlerReflect(reflect_val, namemethod)
 
-		path_split := strings.Split(strings.ToLower(namemethod), "_")
+		path_split := strings.Split(utils.CamelToKebab(namemethod), "_")
 		apipath := path_split[0]
 		route_method := ""
 		if len(path_split) > 1 {
