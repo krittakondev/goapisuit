@@ -140,6 +140,11 @@ type Response{{.Name}} struct {
 	Data    interface{} `+"`"+`json:"data,omitempty"`+"`"+`
 }
 
+func (r *Route) Middleware(c *fiber.Ctx) error {
+	fmt.Println("pass middleware {{.Name}}")
+	return c.Next()
+}
+
 func (r *Route) {{.Name}}_get(c *fiber.Ctx) error {
 	// uncomment below for protect route with jwt  header["Token"] 
 	// if err :=  r.Suit.RequireJwtAuth(c); err!=nil{
