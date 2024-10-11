@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 	"text/template"
 )
 
@@ -110,6 +111,12 @@ func (mr *MakeRoute) NewGroup(path string) (createPathRoute string, err error) {
 	if err = tmplRoute.Execute(file, mr); err != nil {
 		return 
 	}
+	filetmp, err := os.OpenFile(".tmpgroups", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatalf("can't open file: %v", err)
+	}
+	defer filetmp.Close()
+	_, err = filetmp.WriteString(strings.ReplaceAll(path, "/init_suit.go", "") + "\n")
 
 	return
 }
