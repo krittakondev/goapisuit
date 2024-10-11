@@ -28,7 +28,7 @@ func (t *Template) InitProject(done chan bool, useDocker bool) {
 	arrFile := map[string]string{
 		".env":                           templateEnv,
 		"./internal/routes/init_suit.go": templateRouter,
-		"./internal/setup/groupsloader.go": templateRouter,
+		"./internal/setup/groupsloader.go": templateGroupsSetup,
 		"./cmd/server.go":                templateServer,
 		"./public/index.html":            templatePublicIndex,
 	}
