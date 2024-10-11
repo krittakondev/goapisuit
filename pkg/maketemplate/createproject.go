@@ -11,8 +11,15 @@ import (
 	"github.com/krittakondev/goapisuit/pkg/utils"
 )
 
+
+type GroupsLoader struct{
+	ImportRouteGroup string
+	SetupGroups string
+}
+
 type Template struct {
 	EnvStruct
+	GroupsLoader
 	ProjectName string
 }
 
