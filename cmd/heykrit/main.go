@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -16,20 +17,47 @@ import (
 	"github.com/manifoldco/promptui"
 )
 
-func argsScan(opt_name string, args ...*string) (err error){
-	len_scan := 2+len(args)
+func argsScan(opt_name string, args ...*string) (err error) {
+	len_scan := 2 + len(args)
 	if len(os.Args) < len_scan {
 		fmt.Printf(`Error: Missing %d required arguments.
 Usage: heykrit %s`, len_scan-len(os.Args), opt_name)
 		fmt.Println()
 		os.Exit(1)
 	}
-	for i, _ := range args{
+	for i, _ := range args {
 		*args[i] = os.Args[2+i]
 	}
 	return
 }
 
+func createInitSuitInGroup(arr []string) {
+	path := "internal/routes"
+	for _, val := range arr {
+		path += "/"+val
+		path_init := path + "/init_suit.go"
+		if _, err := os.Stat(path_init); err != nil {
+			if os.IsNotExist(err) {
+				PathProject, _ := utils.GetProjectName()
+				mkroute := &maketemplate.MakeRoute{
+					Name:        utils.KebabToCamel(val),
+					PathProject: PathProject,
+				}
+				if created, err1 := mkroute.NewGroup(path_init); err1 != nil {
+					log.Fatal(err1)
+				} else {
+					fmt.Printf("created %s\n", created)
+
+				}
+
+			} else {
+				log.Println(path_init + "exist!")
+			}
+
+		}
+	}
+
+}
 
 func main() {
 	if len(os.Args) < 2 {
@@ -75,21 +103,21 @@ func main() {
 			template.EnvStruct.DbUsername = "suit"
 			template.EnvStruct.DbHost = "127.0.0.1"
 			template.EnvStruct.DbPort = "3306"
-			
-			if resultuseDocker == "YES"{
+
+			if resultuseDocker == "YES" {
 				dbpassword := os.Getenv("DB_PASSWORD")
-				if len(dbpassword) > 0{
+				if len(dbpassword) > 0 {
 					template.EnvStruct.DbPassword = dbpassword
-				}else{
+				} else {
 					template.EnvStruct.DbPassword, _ = utils.GenerateSecret(32)
 				}
 			}
-			
+
 			done := make(chan bool)
-			go template.InitProject(done, resultuseDocker=="YES")
+			go template.InitProject(done, resultuseDocker == "YES")
 			s := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
 			s.Start()
-			<- done
+			<-done
 			fmt.Println("done")
 			s.Stop()
 
@@ -104,7 +132,7 @@ func main() {
 		argsScan("make [...args]", &routeName)
 		PathProject, _ := utils.GetProjectName()
 		mkroute := &maketemplate.MakeRoute{
-			Name: utils.KebabToCamel(routeName),
+			Name:        utils.KebabToCamel(routeName),
 			PathProject: PathProject,
 		}
 		if arr, err := mkroute.New(); err != nil {
@@ -115,12 +143,29 @@ func main() {
 			}
 
 		}
+	case "make:group":
+		var group_name string
+		argsScan(command+" [...args]", &group_name)
+		re := regexp.MustCompile("/+")
+		group_name = re.ReplaceAllString(group_name, "/")
+		list_group := strings.Split(group_name, "/")
+		info, _ := os.Stat("internal/routes")
+		if !info.IsDir() {
+			log.Println("Don't have internal/routes path please check your current path")
+		}
+		err := os.MkdirAll(re.ReplaceAllString("internal/routes/"+group_name, "/"), os.ModePerm)
+		if err != nil {
+			fmt.Println("Error creating directories:", err)
+			return
+		}
+		createInitSuitInGroup(list_group)
+
 	case "make:route":
 		var routeName string
-		argsScan("make:route [...args]", &routeName)
+		argsScan(command+" [...args]", &routeName)
 		PathProject, _ := utils.GetProjectName()
 		mkroute := &maketemplate.MakeRoute{
-			Name: utils.KebabToCamel(routeName),
+			Name:        utils.KebabToCamel(routeName),
 			PathProject: PathProject,
 		}
 		if str, err := mkroute.NewRoute(); err != nil {
@@ -130,10 +175,10 @@ func main() {
 		}
 	case "make:model":
 		var routeName string
-		argsScan("make:model [...args]", &routeName)
+		argsScan(command+" [...args]", &routeName)
 		PathProject, _ := utils.GetProjectName()
 		mkroute := &maketemplate.MakeRoute{
-			Name: utils.KebabToCamel(routeName),
+			Name:        utils.KebabToCamel(routeName),
 			PathProject: PathProject,
 		}
 		if str, err := mkroute.NewModel(); err != nil {
@@ -151,7 +196,7 @@ func main() {
 		log.Print("connect success")
 	case "db:migrate":
 		var model_name string
-		argsScan("db:migrate [...args]", &model_name)
+		argsScan(command+" [...args]", &model_name)
 
 		if err := godotenv.Load(); err != nil {
 			log.Fatal(err)
@@ -162,16 +207,16 @@ func main() {
 		// }
 		tmpmodels, _ := goapisuit.LoadTmpModel()
 		var ModelName string
-		for _, str := range tmpmodels{
-			if strings.ToLower(model_name) == strings.ToLower(str){
+		for _, str := range tmpmodels {
+			if strings.ToLower(model_name) == strings.ToLower(str) {
 				ModelName = str
 				break
 			}
 		}
-		if ModelName == ""{
+		if ModelName == "" {
 			log.Fatalf("Not found model %s\n", model_name)
 		}
-		
+
 		fmt.Printf("Do you want migrate %s Model? [y/N]:", model_name)
 		Ans := "n"
 		fmt.Scanf("%s\n", &Ans)
@@ -184,11 +229,10 @@ func main() {
 		}
 		mg := maketemplate.Migrate{
 			PathProject: pathProject,
-			Name: ModelName,
-
+			Name:        ModelName,
 		}
 
-		if err := mg.Migrate(); err != nil{
+		if err := mg.Migrate(); err != nil {
 			log.Fatal(err)
 		}
 

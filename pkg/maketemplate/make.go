@@ -90,6 +90,29 @@ func (mr *MakeRoute) NewRoute() (createPathRoute string, err error) {
 
 	return
 }
+func (mr *MakeRoute) NewGroup(path string) (createPathRoute string, err error) {
+	tmplRoute, err := template.New("group").Parse(templateRouter)
+	if err != nil{
+		return
+	}
+	createPathRoute = path
+
+	if _, err = os.Stat(createPathRoute); err == nil {
+		err = errors.New(createPathRoute + " is Exist")
+		return 
+	}
+
+	file, err := os.OpenFile(createPathRoute, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return 
+	}
+	defer file.Close()
+	if err = tmplRoute.Execute(file, mr); err != nil {
+		return 
+	}
+
+	return
+}
 func (mr *MakeRoute) New() (arrPath []string, err error) {
 	createPathModel, err :=  mr.NewModel()
 	if err != nil {
