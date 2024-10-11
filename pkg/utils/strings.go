@@ -28,3 +28,17 @@ func CamelToKebab(s string) string {
 	kebab := re.ReplaceAllString(s, "${1}-${2}")
 	return strings.ToLower(kebab)
 }
+func PathToCamelCase(path string) string {
+	parts := strings.Split(path, "/")
+	
+	var result string
+	for _, part := range parts {
+		// ข้ามถ้าสตริงว่างเปล่า
+		if part == "" {
+			continue
+		}
+		// แปลงตัวอักษรตัวแรกเป็นตัวพิมพ์ใหญ่และรวมกับตัวอักษรที่เหลือ
+		result += strings.ToUpper(string(part[0])) + part[1:]
+	}
+	return result
+}
