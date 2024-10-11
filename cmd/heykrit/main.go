@@ -31,6 +31,28 @@ Usage: heykrit %s`, len_scan-len(os.Args), opt_name)
 	return
 }
 
+func migrateGroup(){
+	group, err := os.ReadFile(".tmpgroups")
+	if err != nil{
+		log.Fatal(err)
+	}
+	list := strings.Split(string(group), "\n")
+
+	fmt.Println(list)
+
+	project_path, _ := utils.GetProjectName()
+	list_call := maketemplate.CreateTemplateGroupsSetupCall(list)
+	list_import := maketemplate.CreateTemplateGroupsSetupImport(project_path, list)
+	mktemp := &maketemplate.GroupsLoader{
+		ImportRouteGroup: strings.Join(list_import, "\n"),
+		SetupGroups:  strings.Join(list_call, "\n"),
+	}
+	err = mktemp.NewGroupLoader()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func createInitSuitInGroup(arr []string) {
 	path := "internal/routes"
 	for _, val := range arr {
@@ -56,6 +78,7 @@ func createInitSuitInGroup(arr []string) {
 
 		}
 	}
+	migrateGroup()
 
 }
 

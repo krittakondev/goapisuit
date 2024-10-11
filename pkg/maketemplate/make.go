@@ -116,7 +116,23 @@ func (mr *MakeRoute) NewGroup(path string) (createPathRoute string, err error) {
 		log.Fatalf("can't open file: %v", err)
 	}
 	defer filetmp.Close()
-	_, err = filetmp.WriteString(strings.ReplaceAll(path, "/init_suit.go", "") + "\n")
+	_, err = filetmp.WriteString(strings.TrimPrefix(strings.ReplaceAll(path, "/init_suit.go", "") + "\n", "internal/routes"))
+
+	return
+}
+func (mr *GroupsLoader) NewGroupLoader() (err error) {
+	tmplGroupLoader, err := template.New("GroupsLoader").Parse(templateGroupsSetup)
+	if err != nil{
+		return
+	}
+	file, err := os.OpenFile("internal/setup/groupsloader.go", os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return 
+	}
+	defer file.Close()
+	if err = tmplGroupLoader.Execute(file, mr); err != nil {
+		return 
+	}
 
 	return
 }

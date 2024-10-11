@@ -12,11 +12,6 @@ import (
 )
 
 
-type GroupsLoader struct{
-	ImportRouteGroup string
-	SetupGroups string
-}
-
 type Template struct {
 	EnvStruct
 	GroupsLoader

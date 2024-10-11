@@ -4,6 +4,7 @@ go 1.22.6
 
 require (
 	github.com/briandowns/spinner v1.23.1
+	github.com/caarlos0/env/v6 v6.10.1
 	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/joho/godotenv v1.5.1
@@ -16,7 +17,6 @@ require (
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/andybalholm/brotli v1.0.5 // indirect
-	github.com/caarlos0/env/v6 v6.10.1 // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/fatih/color v1.7.0 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect

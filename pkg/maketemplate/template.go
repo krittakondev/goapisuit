@@ -1,5 +1,11 @@
 package maketemplate
 
+import (
+	"fmt"
+
+	"github.com/krittakondev/goapisuit/pkg/utils"
+)
+
 
 
 var templateRouter = `package routes
@@ -357,23 +363,39 @@ networks:
   backend:
 `
 
+type GroupsLoader struct{
+	ImportRouteGroup string
+	SetupGroups string
+}
 
-var templateGroupsSetupCall = `
-	suit.SetupGroups(suit.Config.ApiPrefix+"{{.GroupPath}}", &route_{{.GroupName}}.Route{})
-`
+func CreateTemplateGroupsSetupCall(groups_path []string) (arr []string){
+	for _, val := range groups_path{
+		name := utils.PathToCamelCase(val)
+		if name != ""{
+			arr = append(arr, fmt.Sprintf("\tsuit.SetupGroups(suit.Config.ApiPrefix+\"%s\", &route_%s.Route{})", val, name))
+		}
+	}
+	return
+}
 
-var templateGroupsSetupImport = `
-	route_{{.GroupName}} "{{.ProjectName}}/internal/routes{{.GroupPath}}"
-`
+func CreateTemplateGroupsSetupImport(project_name string, groups_path []string)(arr []string){
+	for _, val := range groups_path{
+		name := utils.PathToCamelCase(val)
+		if name != ""{
+			arr = append(arr, fmt.Sprintf("\troute_%s \"%s/internal/routes%s\"", name, project_name, val))
+		}
+	}
+	return
+}
 var templateGroupsSetup = `package setup
 
 import (
-	{{.ImportRouteGroup}}
+{{.ImportRouteGroup}}
 	"github.com/krittakondev/goapisuit"
 )
 
 func GroupsSetup(suit *goapisuit.Suit){
-	{{.SetupGroups}}
+{{.SetupGroups}}
 }
 `
 
