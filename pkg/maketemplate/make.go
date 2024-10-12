@@ -5,8 +5,11 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 	"text/template"
+
+	"github.com/krittakondev/goapisuit/pkg/utils"
 )
 
 type MakeRoute struct {
@@ -18,6 +21,7 @@ type Migrate struct {
 	Name        string
 	PathProject string
 }
+
 
 func (mg *Migrate) Migrate() error {
 	createPath := "tmp_migrate.go"
@@ -41,12 +45,14 @@ func (mg *Migrate) Migrate() error {
 
 	return nil
 }
-func (mr *MakeRoute) NewModel() (createPathModel string, err error) {
+func (mr MakeRoute) NewModel() (createPathModel string, err error) {
 	tmplModel, err  := template.New("model").Parse(templateMakeModel)
 	if err != nil{
 		return
 	}
-	createPathModel = "internal/models/" + mr.Name + ".go"
+	model_name := utils.PathToCamelCase(mr.Name)
+	re := regexp.MustCompile("/+")
+	createPathModel = re.ReplaceAllString("internal/models/" + model_name + ".go", "/")
 	if _, err = os.Stat(createPathModel); err == nil {
 		err = errors.New(createPathModel + " is Exist")
 		return 
@@ -56,6 +62,7 @@ func (mr *MakeRoute) NewModel() (createPathModel string, err error) {
 		return
 	}
 	defer file.Close()
+	mr.Name = model_name
 	if err = tmplModel.Execute(file, mr); err != nil {
 		return 
 	}
@@ -68,12 +75,18 @@ func (mr *MakeRoute) NewModel() (createPathModel string, err error) {
 	return
 }
 
-func (mr *MakeRoute) NewRoute() (createPathRoute string, err error) {
+func (mr MakeRoute) NewRoute() (createPathRoute string, err error) {
 	tmplRoute, err := template.New("route").Parse(templateMakeRouter)
 	if err != nil{
 		return
 	}
-	createPathRoute = "internal/routes/" + mr.Name + ".go"
+	re := regexp.MustCompile("/+")
+	createPathRoute = re.ReplaceAllString("internal/routes/" + mr.Name + ".go", "/")
+	
+	split_path_group :=strings.Split(mr.Name, "/")
+	path_group := strings.Join(split_path_group[:len(split_path_group)-1], "/")
+
+	CreateInitSuitInGroup(path_group)
 
 	if _, err = os.Stat(createPathRoute); err == nil {
 		err = errors.New(createPathRoute + " is Exist")
@@ -85,52 +98,8 @@ func (mr *MakeRoute) NewRoute() (createPathRoute string, err error) {
 		return 
 	}
 	defer file.Close()
+	mr.Name = utils.PathToCamelCase(mr.Name)
 	if err = tmplRoute.Execute(file, mr); err != nil {
-		return 
-	}
-
-	return
-}
-func (mr *MakeRoute) NewGroup(path string) (createPathRoute string, err error) {
-	tmplRoute, err := template.New("group").Parse(templateRouter)
-	if err != nil{
-		return
-	}
-	createPathRoute = path
-
-	if _, err = os.Stat(createPathRoute); err == nil {
-		err = errors.New(createPathRoute + " is Exist")
-		return 
-	}
-
-	file, err := os.OpenFile(createPathRoute, os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return 
-	}
-	defer file.Close()
-	if err = tmplRoute.Execute(file, mr); err != nil {
-		return 
-	}
-	filetmp, err := os.OpenFile(".tmpgroups", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Fatalf("can't open file: %v", err)
-	}
-	defer filetmp.Close()
-	_, err = filetmp.WriteString(strings.TrimPrefix(strings.ReplaceAll(path, "/init_suit.go", "") + "\n", "internal/routes"))
-
-	return
-}
-func (mr *GroupsLoader) NewGroupLoader() (err error) {
-	tmplGroupLoader, err := template.New("GroupsLoader").Parse(templateGroupsSetup)
-	if err != nil{
-		return
-	}
-	file, err := os.OpenFile("internal/setup/groupsloader.go", os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return 
-	}
-	defer file.Close()
-	if err = tmplGroupLoader.Execute(file, mr); err != nil {
 		return 
 	}
 

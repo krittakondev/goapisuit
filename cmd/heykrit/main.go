@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"regexp"
 	"strings"
 	"time"
 
@@ -29,57 +28,6 @@ Usage: heykrit %s`, len_scan-len(os.Args), opt_name)
 		*args[i] = os.Args[2+i]
 	}
 	return
-}
-
-func migrateGroup(){
-	group, err := os.ReadFile(".tmpgroups")
-	if err != nil{
-		log.Fatal(err)
-	}
-	list := strings.Split(string(group), "\n")
-
-	fmt.Println(list)
-
-	project_path, _ := utils.GetProjectName()
-	list_call := maketemplate.CreateTemplateGroupsSetupCall(list)
-	list_import := maketemplate.CreateTemplateGroupsSetupImport(project_path, list)
-	mktemp := &maketemplate.GroupsLoader{
-		ImportRouteGroup: strings.Join(list_import, "\n"),
-		SetupGroups:  strings.Join(list_call, "\n"),
-	}
-	err = mktemp.NewGroupLoader()
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func createInitSuitInGroup(arr []string) {
-	path := "internal/routes"
-	for _, val := range arr {
-		path += "/"+val
-		path_init := path + "/init_suit.go"
-		if _, err := os.Stat(path_init); err != nil {
-			if os.IsNotExist(err) {
-				PathProject, _ := utils.GetProjectName()
-				mkroute := &maketemplate.MakeRoute{
-					Name:        utils.KebabToCamel(val),
-					PathProject: PathProject,
-				}
-				if created, err1 := mkroute.NewGroup(path_init); err1 != nil {
-					log.Fatal(err1)
-				} else {
-					fmt.Printf("created %s\n", created)
-
-				}
-
-			} else {
-				log.Println(path_init + "exist!")
-			}
-
-		}
-	}
-	migrateGroup()
-
 }
 
 func main() {
@@ -169,19 +117,7 @@ func main() {
 	case "make:group":
 		var group_name string
 		argsScan(command+" [...args]", &group_name)
-		re := regexp.MustCompile("/+")
-		group_name = re.ReplaceAllString(group_name, "/")
-		list_group := strings.Split(group_name, "/")
-		info, _ := os.Stat("internal/routes")
-		if !info.IsDir() {
-			log.Println("Don't have internal/routes path please check your current path")
-		}
-		err := os.MkdirAll(re.ReplaceAllString("internal/routes/"+group_name, "/"), os.ModePerm)
-		if err != nil {
-			fmt.Println("Error creating directories:", err)
-			return
-		}
-		createInitSuitInGroup(list_group)
+		maketemplate.CreateInitSuitInGroup(group_name)
 
 	case "make:route":
 		var routeName string

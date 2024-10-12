@@ -134,8 +134,6 @@ var templatePublicIndex = `
 var templateMakeRouter = `package routes
 
 import (
-	"log"
-
 	"github.com/gofiber/fiber/v2"
 	"{{.PathProject}}/internal/models"
 	"gorm.io/gorm"
