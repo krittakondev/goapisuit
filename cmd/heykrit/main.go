@@ -25,7 +25,7 @@ Usage: heykrit %s`, len_scan-len(os.Args), opt_name)
 		fmt.Println()
 		os.Exit(1)
 	}
-	for i, _ := range args {
+	for i := range args {
 		*args[i] = os.Args[2+i]
 	}
 	return
