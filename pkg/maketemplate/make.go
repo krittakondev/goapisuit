@@ -98,7 +98,7 @@ func (mr MakeRoute) NewRoute() (createPathRoute string, err error) {
 		return 
 	}
 	defer file.Close()
-	mr.Name = utils.PathToCamelCase(mr.Name)
+	mr.Name = utils.PathToCamelCase(split_path_group[len(split_path_group)-1])
 	if err = tmplRoute.Execute(file, mr); err != nil {
 		return 
 	}
