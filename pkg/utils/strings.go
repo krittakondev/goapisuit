@@ -42,3 +42,6 @@ func PathToCamelCase(path string) string {
 	}
 	return result
 }
+func PathToModelFormatName(path string) string {
+	return  strings.Join(strings.Split(PathToCamelCase(path), "-"), "_")
+}
