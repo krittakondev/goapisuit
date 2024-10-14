@@ -53,7 +53,6 @@ func NewMakeTemplate(name string) *MakeTemplate{
 	return &MakeTemplate{
 		PathProject: project_name,
 		Name: name,
-		ModelName: utils.PathToModelFormatName(name),
 	}
 }
 
@@ -112,6 +111,7 @@ func NewRoute(name string) (createPathRoute string, err error) {
 	defer file.Close()
 	name_route := utils.PathToCamelCase(split_path_group[len(split_path_group)-1])
 	tmp :=  NewMakeTemplate(name_route)
+	tmp.ModelName = utils.PathToModelFormatName(name)
 
 	if err = tmplRoute.Execute(file, tmp); err != nil {
 		return 
