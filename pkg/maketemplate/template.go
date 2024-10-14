@@ -159,7 +159,7 @@ func (r *Route) {{.Name}}_get(c *fiber.Ctx) error {
 	id := c.Params("id", "")
 
 
-	var result []models.{{.Name}}
+	var result []models.{{.ModelName}}
 	var tx *gorm.DB
 	if id != ""{
 		tx = r.Suit.DB.Where("id=?", id).Find(&result)
@@ -188,7 +188,7 @@ func (r *Route) {{.Name}}_post(c *fiber.Ctx) error {
 	// }
 	// fmt.Printf("%+v", c.Locals("user"))
 
-	var body models.{{.Name}};
+	var body models.{{.ModelName}};
 	
 	if err := c.BodyParser(&body); err != nil {
 		return c.JSON(Response{{.Name}}{
@@ -230,7 +230,7 @@ func (r *Route) {{.Name}}_delete(c *fiber.Ctx) error {
 		})
 	}
 
-	tx := r.Suit.DB.Delete(&models.{{.Name}}{}, id)
+	tx := r.Suit.DB.Delete(&models.{{.ModelName}}{}, id)
 	if tx.Error != nil {
 		return c.JSON(Response{{.Name}}{
 			Code:    -1,
@@ -260,7 +260,7 @@ func (r *Route) {{.Name}}_put(c *fiber.Ctx) error {
 			Data:    nil,
 		})
 	}
-	var body models.{{.Name}}
+	var body models.{{.ModelName}}
 	err := c.BodyParser(&body)
 	if err != nil {
 		return c.JSON(Response{{.Name}}{
@@ -269,7 +269,7 @@ func (r *Route) {{.Name}}_put(c *fiber.Ctx) error {
 			Data:    nil,
 		})
 	}
-	tx := r.Suit.DB.Model(&models.{{.Name}}{}).Where("id=?", id).Updates(body)
+	tx := r.Suit.DB.Model(&models.{{.ModelName}}{}).Where("id=?", id).Updates(body)
 	if tx.Error != nil {
 		return c.JSON(Response{{.Name}}{
 			Code:    -1,
@@ -368,7 +368,7 @@ type GroupsLoader struct{
 
 func CreateTemplateGroupsSetupCall(groups_path []string) (arr []string){
 	for _, val := range groups_path{
-		name := utils.PathToCamelCase(val)
+		name := utils.PathToModelFormatName(val)
 		if name != ""{
 			arr = append(arr, fmt.Sprintf("\tsuit.SetupGroups(suit.Config.ApiPrefix+\"%s\", &route_%s.Route{})", val, name))
 		}
@@ -378,7 +378,7 @@ func CreateTemplateGroupsSetupCall(groups_path []string) (arr []string){
 
 func CreateTemplateGroupsSetupImport(project_name string, groups_path []string)(arr []string){
 	for _, val := range groups_path{
-		name := utils.PathToCamelCase(val)
+		name := utils.PathToModelFormatName(val)
 		if name != ""{
 			arr = append(arr, fmt.Sprintf("\troute_%s \"%s/internal/routes%s\"", name, project_name, val))
 		}

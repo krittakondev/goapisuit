@@ -101,12 +101,7 @@ func main() {
 	case "make":
 		var routeName string
 		argsScan("make [...args]", &routeName)
-		PathProject, _ := utils.GetProjectName()
-		mkroute := &maketemplate.MakeRoute{
-			Name:        utils.KebabToCamel(routeName),
-			PathProject: PathProject,
-		}
-		if arr, err := mkroute.New(); err != nil {
+		if arr, err := maketemplate.New(routeName); err != nil {
 			log.Fatal(err)
 		} else {
 			for _, str := range arr {
@@ -122,25 +117,15 @@ func main() {
 	case "make:route":
 		var routeName string
 		argsScan(command+" [...args]", &routeName)
-		PathProject, _ := utils.GetProjectName()
-		mkroute := &maketemplate.MakeRoute{
-			Name:        utils.KebabToCamel(routeName),
-			PathProject: PathProject,
-		}
-		if str, err := mkroute.NewRoute(); err != nil {
+		if str, err := maketemplate.NewRoute(routeName); err != nil {
 			log.Fatal(err)
 		} else {
 			fmt.Printf("created %s\n", str)
 		}
 	case "make:model":
-		var routeName string
-		argsScan(command+" [...args]", &routeName)
-		PathProject, _ := utils.GetProjectName()
-		mkroute := &maketemplate.MakeRoute{
-			Name:        utils.KebabToCamel(routeName),
-			PathProject: PathProject,
-		}
-		if str, err := mkroute.NewModel(); err != nil {
+		var modelName string
+		argsScan(command+" [...args]", &modelName)
+		if str, err := maketemplate.NewModel(modelName); err != nil {
 			log.Fatal(err)
 		} else {
 			fmt.Printf("created %s\n", str)

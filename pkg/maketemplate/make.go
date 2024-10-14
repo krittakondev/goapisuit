@@ -12,9 +12,10 @@ import (
 	"github.com/krittakondev/goapisuit/pkg/utils"
 )
 
-type MakeRoute struct {
+type MakeTemplate struct {
 	Name string
 	PathProject string
+	ModelName string
 }
 
 type Migrate struct {
@@ -45,12 +46,24 @@ func (mg *Migrate) Migrate() error {
 
 	return nil
 }
-func (mr MakeRoute) NewModel() (createPathModel string, err error) {
+
+func NewMakeTemplate(name string) *MakeTemplate{
+	project_name, _ := utils.GetProjectName()
+	
+	return &MakeTemplate{
+		PathProject: project_name,
+		Name: name,
+		ModelName: utils.PathToModelFormatName(name),
+	}
+}
+
+func NewModel(name string) (createPathModel string, err error) {
 	tmplModel, err  := template.New("model").Parse(templateMakeModel)
 	if err != nil{
 		return
 	}
-	model_name := utils.PathToCamelCase(mr.Name)
+	model_name := utils.PathToCamelCase(name)
+	model_name = strings.Join(strings.Split(model_name, "-"), "_")
 	re := regexp.MustCompile("/+")
 	createPathModel = re.ReplaceAllString("internal/models/" + model_name + ".go", "/")
 	if _, err = os.Stat(createPathModel); err == nil {
@@ -62,8 +75,7 @@ func (mr MakeRoute) NewModel() (createPathModel string, err error) {
 		return
 	}
 	defer file.Close()
-	mr.Name = model_name
-	if err = tmplModel.Execute(file, mr); err != nil {
+	if err = tmplModel.Execute(file, NewMakeTemplate(model_name)); err != nil {
 		return 
 	}
 	filetmp, err := os.OpenFile(".tmpmodels", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -71,19 +83,19 @@ func (mr MakeRoute) NewModel() (createPathModel string, err error) {
 		log.Fatalf("can't open file: %v", err)
 	}
 	defer filetmp.Close()
-	_, err = filetmp.WriteString(mr.Name + "\n")
+	_, err = filetmp.WriteString(model_name + "\n")
 	return
 }
 
-func (mr MakeRoute) NewRoute() (createPathRoute string, err error) {
+func NewRoute(name string) (createPathRoute string, err error) {
 	tmplRoute, err := template.New("route").Parse(templateMakeRouter)
 	if err != nil{
 		return
 	}
 	re := regexp.MustCompile("/+")
-	createPathRoute = re.ReplaceAllString("internal/routes/" + mr.Name + ".go", "/")
+	createPathRoute = re.ReplaceAllString("internal/routes/" + name + ".go", "/")
 	
-	split_path_group :=strings.Split(mr.Name, "/")
+	split_path_group := strings.Split(name, "/")
 	path_group := strings.Join(split_path_group[:len(split_path_group)-1], "/")
 
 	CreateInitSuitInGroup(path_group)
@@ -98,19 +110,21 @@ func (mr MakeRoute) NewRoute() (createPathRoute string, err error) {
 		return 
 	}
 	defer file.Close()
-	mr.Name = utils.PathToCamelCase(split_path_group[len(split_path_group)-1])
-	if err = tmplRoute.Execute(file, mr); err != nil {
+	name_route := utils.PathToCamelCase(split_path_group[len(split_path_group)-1])
+	tmp :=  NewMakeTemplate(name_route)
+
+	if err = tmplRoute.Execute(file, tmp); err != nil {
 		return 
 	}
 
 	return
 }
-func (mr *MakeRoute) New() (arrPath []string, err error) {
-	createPathModel, err :=  mr.NewModel()
-	if err != nil {
+func New(name string) (arrPath []string, err error) {
+	createPathModel, err :=  NewModel(name)
+	if err != nil { 
 		return
 	}
-	createPathRoute, err :=  mr.NewRoute()
+	createPathRoute, err :=  NewRoute(name)
 	if err != nil {
 		return
 	}

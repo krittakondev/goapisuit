@@ -12,7 +12,7 @@ import (
 	"github.com/krittakondev/goapisuit/pkg/utils"
 )
 
-func (mr *MakeRoute) NewGroup(path string) (createPathRoute string, err error) {
+func NewGroup(name, path string) (createPathRoute string, err error) {
 	tmplRoute, err := template.New("group").Parse(templateRouter)
 	if err != nil{
 		return
@@ -29,7 +29,7 @@ func (mr *MakeRoute) NewGroup(path string) (createPathRoute string, err error) {
 		return 
 	}
 	defer file.Close()
-	if err = tmplRoute.Execute(file, mr); err != nil {
+	if err = tmplRoute.Execute(file, NewMakeTemplate(name)); err != nil {
 		return 
 	}
 	filetmp, err := os.OpenFile(".tmpgroups", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -97,12 +97,7 @@ func CreateInitSuitInGroup(group_name string) {
 		path_init := re.ReplaceAllString(path + "/init_suit.go", "/")
 		if _, err := os.Stat(path_init); err != nil {
 			if os.IsNotExist(err) {
-				PathProject, _ := utils.GetProjectName()
-				mkroute := &MakeRoute{
-					Name:        utils.KebabToCamel(val),
-					PathProject: PathProject,
-				}
-				if created, err1 := mkroute.NewGroup(path_init); err1 != nil {
+				if created, err1 := NewGroup(utils.KebabToCamel(val), path_init); err1 != nil {
 					log.Fatal(err1)
 				} else {
 					fmt.Printf("created %s\n", created)
