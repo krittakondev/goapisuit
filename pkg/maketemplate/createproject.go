@@ -8,6 +8,7 @@ import (
 
 	"text/template"
 
+	"github.com/krittakondev/goapisuit"
 	"github.com/krittakondev/goapisuit/pkg/utils"
 )
 
@@ -75,7 +76,7 @@ func (t *Template) InitProject(done chan bool, useDocker bool) {
 
 	}
 	fmt.Println("installing...")
-	cmd := exec.Command("go", "get", "github.com/krittakondev/goapisuit")
+	cmd := exec.Command("go", "get", "github.com/krittakondev/goapisuit@"+goapisuit.Version)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		fmt.Println(out)
 	}
