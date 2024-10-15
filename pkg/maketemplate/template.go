@@ -25,6 +25,13 @@ type Route struct{
 	Suit *goapisuit.Suit
 }
 
+func (r *Route) Middleware(c *fiber.Ctx) error{
+	
+	// middleware for group
+	
+	return c.Next()
+}
+
 func (r *Route) Index_get(c *fiber.Ctx) error{
 	
 	resp := Response{
