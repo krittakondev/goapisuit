@@ -21,7 +21,7 @@ import (
 	// routesAll "github.com/krittakondev/goapisuit/internal/api/routes"
 )
 
-const Version = "v1.0.1-beta.1"
+const Version = "v1.0.2-beta"
 
 type Suit struct {
 	ProjectName    string
@@ -65,7 +65,7 @@ func LoadTmpModel() (arr []string, err error) {
 	return
 }
 
-func New(project_name string) (suit *Suit, err error) {
+func New(project_name string, fiberConfig ...fiber.Config) (suit *Suit, err error) {
 	cfg := LoadEnv()
 	suit = &Suit{
 		RequireJwtAuth: middlewares.RequireJwtAuth,
@@ -83,6 +83,9 @@ func New(project_name string) (suit *Suit, err error) {
 		ServerHeader: "goapisuit",
 		AppName:      suit.Config.AppName,
 	})
+	if len(fiberConfig) > 0{
+		app = fiber.New(fiberConfig...)
+	}
 	suit.Fiber = app
 
 	limit := 20
