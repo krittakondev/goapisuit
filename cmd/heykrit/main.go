@@ -39,6 +39,8 @@ func main() {
 	command := os.Args[1]
 
 	switch command {
+	case "version":
+		fmt.Println("suit version:",goapisuit.Version)
 	case "init":
 		if _, err := os.Stat("go.mod"); err == nil {
 			projectPath, err := utils.GetProjectName()

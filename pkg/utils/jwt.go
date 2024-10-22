@@ -23,7 +23,7 @@ func SignJwt(jwt_claim JwtClaims) (token_string string, err error) {
 	}
 	jwt_expire := "1d"
 	if expire := os.Getenv("JWT_EXPIRE"); expire != "" {
-		jwt_secret = expire
+		jwt_expire = expire
 	}
 	duration, err := time.ParseDuration(jwt_expire)
 	if err != nil {

@@ -2,6 +2,8 @@
 
 # goapisuit
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/krittakondev/goapisuit.svg)](https://pkg.go.dev/github.com/krittakondev/goapisuit)
+
 **goapisuit** is a lightweight and easy-to-use Golang framework that simplifies API creation and database management using GoFiber. It aims to accelerate the development of APIs by providing built-in commands for generating models, routers, and handling database migrations.
 
 ## Features
