@@ -97,7 +97,9 @@ func NewRoute(name string) (createPathRoute string, err error) {
 	split_path_group := strings.Split(name, "/")
 	path_group := strings.Join(split_path_group[:len(split_path_group)-1], "/")
 
-	CreateInitSuitInGroup(path_group)
+	if path_group != ""{
+		CreateInitSuitInGroup(path_group)
+	}
 
 	if _, err = os.Stat(createPathRoute); err == nil {
 		err = errors.New(createPathRoute + " is Exist")
