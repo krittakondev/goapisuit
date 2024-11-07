@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"github.com/golang-jwt/jwt/v5"
 )
 
 
-func RequireJwtAuth(c *fiber.Ctx) error {
+func RequireJwtAuth(c fiber.Ctx) error {
 	jwt_secret := os.Getenv("JWT_SECRET")
 	if jwt_secret == ""{
 		return errors.New("Not found jwt Secret")

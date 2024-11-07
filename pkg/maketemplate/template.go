@@ -11,7 +11,7 @@ import (
 var templateRouter = `package routes
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"github.com/krittakondev/goapisuit"
 )
 
@@ -25,14 +25,14 @@ type Route struct{
 	Suit *goapisuit.Suit
 }
 
-func (r *Route) Middleware(c *fiber.Ctx) error{
+func (r *Route) Middleware(c fiber.Ctx) error{
 	
 	// middleware for group
 	
 	return c.Next()
 }
 
-func (r *Route) Index_get(c *fiber.Ctx) error{
+func (r *Route) Index_get(c fiber.Ctx) error{
 	
 	resp := Response{
 		Message: "hello goapisuit",
@@ -141,7 +141,7 @@ var templatePublicIndex = `
 var templateMakeRouter = `package routes
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"{{.PathProject}}/internal/models"
 	"gorm.io/gorm"
 )
@@ -153,14 +153,14 @@ type Response{{.Name}} struct {
 }
 
 
-func (r *Route) {{.Name}}_get(c *fiber.Ctx) error {
+func (r *Route) {{.Name}}_get(c fiber.Ctx) error {
 	// uncomment below for protect route with jwt  header["Token"] 
 	// if err :=  r.Suit.RequireJwtAuth(c); err!=nil{
 	// 	return err
 	// }
 	// fmt.Printf("%+v", c.Locals("user"))
-	limit := c.QueryInt("limit", r.Suit.LimitPage)
-	page := c.QueryInt("page", 1)
+	limit := fiber.Query[int](c, "limit", r.Suit.LimitPage)
+	page := fiber.Query[int](c, "page", 1)
 	code := 0
 	message := "response from {{.Name}}"
 	id := c.Params("id", "")
@@ -188,7 +188,7 @@ func (r *Route) {{.Name}}_get(c *fiber.Ctx) error {
 	return c.JSON(resp)
 }
 
-func (r *Route) {{.Name}}_post(c *fiber.Ctx) error {
+func (r *Route) {{.Name}}_post(c fiber.Ctx) error {
 	// uncomment below for protect route with jwt  header["Token"] 
 	// if err :=  r.Suit.RequireJwtAuth(c); err!=nil{
 	// 	return err
@@ -197,7 +197,7 @@ func (r *Route) {{.Name}}_post(c *fiber.Ctx) error {
 
 	var body models.{{.ModelName}};
 	
-	if err := c.BodyParser(&body); err != nil {
+	if err := c.Bind().Body(body); err != nil {
 		return c.JSON(Response{{.Name}}{
 			Code: -1,
 			Message: err.Error(),
@@ -222,7 +222,7 @@ func (r *Route) {{.Name}}_post(c *fiber.Ctx) error {
 
 }
 
-func (r *Route) {{.Name}}_delete(c *fiber.Ctx) error {
+func (r *Route) {{.Name}}_delete(c fiber.Ctx) error {
 	// uncomment below for protect route with jwt  header["Token"] 
 	// if err :=  r.Suit.RequireJwtAuth(c); err!=nil{
 	// 	return err
@@ -253,7 +253,7 @@ func (r *Route) {{.Name}}_delete(c *fiber.Ctx) error {
 	})
 }
 
-func (r *Route) {{.Name}}_put(c *fiber.Ctx) error {
+func (r *Route) {{.Name}}_put(c fiber.Ctx) error {
 	// uncomment below for protect route with jwt  header["Token"] 
 	// if err :=  r.Suit.RequireJwtAuth(c); err!=nil{
 	// 	return err
@@ -268,7 +268,7 @@ func (r *Route) {{.Name}}_put(c *fiber.Ctx) error {
 		})
 	}
 	var body models.{{.ModelName}}
-	err := c.BodyParser(&body)
+	err := c.Bind().Body(body)
 	if err != nil {
 		return c.JSON(Response{{.Name}}{
 			Code:    -1,
