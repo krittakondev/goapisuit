@@ -9,10 +9,10 @@ import (
 
 	"github.com/briandowns/spinner"
 	"github.com/joho/godotenv"
-	"github.com/krittakondev/goapisuit"
-	"github.com/krittakondev/goapisuit/database"
-	"github.com/krittakondev/goapisuit/pkg/maketemplate"
-	"github.com/krittakondev/goapisuit/pkg/utils"
+	"github.com/krittakondev/goapisuit/v2"
+	"github.com/krittakondev/goapisuit/v2/database"
+	"github.com/krittakondev/goapisuit/v2/pkg/maketemplate"
+	"github.com/krittakondev/goapisuit/v2/pkg/utils"
 	"github.com/manifoldco/promptui"
 )
 

@@ -1,4 +1,4 @@
-module github.com/krittakondev/goapisuit
+module github.com/krittakondev/goapisuit/v2
 
 go 1.22.6
 

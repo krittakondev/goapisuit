@@ -3,7 +3,7 @@ package maketemplate
 import (
 	"fmt"
 
-	"github.com/krittakondev/goapisuit/pkg/utils"
+	"github.com/krittakondev/goapisuit/v2/pkg/utils"
 )
 
 
