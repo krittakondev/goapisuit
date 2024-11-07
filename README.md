@@ -27,7 +27,7 @@ To use goapisuit, you need the following installed:
 1. Install CLI `heykrit` for the `goapisuit`:
 
    ```bash
-   go install -v github.com/krittakondev/goapisuit/cmd/v2/heykrit@latest
+   go install -v github.com/krittakondev/goapisuit/v2/cmd/heykrit@latest
    ```
 2. Make your project:
 
