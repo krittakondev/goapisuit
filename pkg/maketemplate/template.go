@@ -12,7 +12,7 @@ var templateRouter = `package routes
 
 import (
 	"github.com/gofiber/fiber/v3"
-	"github.com/krittakondev/goapisuit"
+	"github.com/krittakondev/goapisuit/v2"
 )
 
 type Response struct {
@@ -48,7 +48,7 @@ var templateServer = `package main
 import (
 	"log"
 
-	"github.com/krittakondev/goapisuit"
+	"github.com/krittakondev/goapisuit/v2"
 	"{{.ProjectName}}/internal/routes"
 	"{{.ProjectName}}/internal/setup"
 )
@@ -310,7 +310,7 @@ package main
 
 import (
 	"{{.PathProject}}/internal/models"
-	"github.com/krittakondev/goapisuit/database"
+	"github.com/krittakondev/v2/goapisuit/database"
 )
 
 func main(){
@@ -396,7 +396,7 @@ var templateGroupsSetup = `package setup
 
 import (
 {{.ImportRouteGroup}}
-	"github.com/krittakondev/goapisuit"
+	"github.com/krittakondev/goapisuit/v2"
 )
 
 func GroupsSetup(suit *goapisuit.Suit){
