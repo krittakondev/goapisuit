@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"github.com/krittakondev/goapisuit"
 	"github.com/krittakondev/goapisuit/internal/models"
 	"github.com/krittakondev/goapisuit/pkg/utils"
@@ -21,7 +21,7 @@ type Route struct{
 	Suit *goapisuit.Suit
 }
 
-func (r *Route) Index_get(c *fiber.Ctx) error{
+func (r *Route) Index_get(c fiber.Ctx) error{
 	
 	resp := Response{
 		Message: "hello goapisuit",
@@ -32,13 +32,13 @@ func (r *Route) Index_get(c *fiber.Ctx) error{
 	return c.JSON(resp);
 }
 
-func (r *Route) Login_post(c *fiber.Ctx) error{
+func (r *Route) Login_post(c fiber.Ctx) error{
 	type Body struct {
 		Username string 
 		Password string
 	}
 	var body Body
-	if err := c.BodyParser(&body); err != nil {
+	if err := c.Bind().Body(body); err != nil {
 		return c.SendStatus(401)
 	}
 	
