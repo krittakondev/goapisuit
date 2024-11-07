@@ -12,22 +12,24 @@ import (
 	// "strings"
 
 	"github.com/caarlos0/env/v6"
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/static"
+	fiber_recover "github.com/gofiber/fiber/v3/middleware/recover"
 	"github.com/joho/godotenv"
 	"github.com/krittakondev/goapisuit/database"
-	"github.com/krittakondev/goapisuit/pkg/utils"
 	"github.com/krittakondev/goapisuit/middlewares"
+	"github.com/krittakondev/goapisuit/pkg/utils"
 	"gorm.io/gorm"
 	// routesAll "github.com/krittakondev/goapisuit/internal/api/routes"
 )
 
-const Version = "v1.0.2"
+const Version = "v2.0.0-beta.1"
 
 type Suit struct {
 	ProjectName    string
 	DB             *gorm.DB
 	LimitPage      int
-	RequireJwtAuth func(*fiber.Ctx) error
+	RequireJwtAuth func(fiber.Ctx) error
 	Fiber          *fiber.App
 	Routes         *interface{}
 	Config         Config
@@ -94,6 +96,10 @@ func New(project_name string, fiberConfig ...fiber.Config) (suit *Suit, err erro
 	}
 	suit.LimitPage = limit
 
+	suit.Fiber.Get("/*", static.New("./public"))
+
+	suit.Fiber.Use(fiber_recover.New())
+
 	return suit, nil
 }
 
@@ -119,10 +125,10 @@ func (s *Suit) GroupScan() (groups []string, err error) {
 	})
 	return groups, err
 }
-func handlerReflect(reflect_val reflect.Value, namemethod string) func(c *fiber.Ctx) error {
+func handlerReflect(reflect_val reflect.Value, namemethod string) func(c fiber.Ctx) error {
 
 	method := reflect.Value.MethodByName(reflect_val, namemethod)
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		// Prepare the arguments for the function
 		args := []reflect.Value{reflect.ValueOf(c)}
 
@@ -152,7 +158,7 @@ func setupDynamicRoutes(api fiber.Router, r interface{}) (routes []map[string]st
 		handler := handlerReflect(reflect_val, namemethod)
 
 		path_split := strings.Split(utils.CamelToKebab(namemethod), "_")
-		apipath := path_split[0]
+		apipath := path_split[0] 
 		route_method := ""
 		if len(path_split) > 1 {
 			route_method = path_split[1]
@@ -244,7 +250,6 @@ func (s *Suit) Run() {
 		PORT = "3000"
 	}
 
-	s.Fiber.Static("/", "./public")
 
 	if err := s.Fiber.Listen(HOST + ":" + PORT); err != nil {
 		log.Fatal(err)
