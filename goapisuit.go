@@ -16,14 +16,14 @@ import (
 	"github.com/gofiber/fiber/v3/middleware/static"
 	fiber_recover "github.com/gofiber/fiber/v3/middleware/recover"
 	"github.com/joho/godotenv"
-	"github.com/krittakondev/goapisuit/database"
-	"github.com/krittakondev/goapisuit/middlewares"
-	"github.com/krittakondev/goapisuit/pkg/utils"
+	"github.com/krittakondev/goapisuit/v2/database"
+	"github.com/krittakondev/goapisuit/v2/middlewares"
+	"github.com/krittakondev/goapisuit/v2/pkg/utils"
 	"gorm.io/gorm"
 	// routesAll "github.com/krittakondev/goapisuit/internal/api/routes"
 )
 
-const Version = "v2.0.0-beta.1"
+const Version = "v2.0.0-beta.2"
 
 type Suit struct {
 	ProjectName    string

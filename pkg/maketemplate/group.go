@@ -9,7 +9,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/krittakondev/goapisuit/pkg/utils"
+	"github.com/krittakondev/goapisuit/v2/pkg/utils"
 )
 
 func NewGroup(name, path string) (createPathRoute string, err error) {

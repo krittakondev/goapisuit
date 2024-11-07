@@ -2,9 +2,9 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v3"
-	"github.com/krittakondev/goapisuit"
-	"github.com/krittakondev/goapisuit/internal/models"
-	"github.com/krittakondev/goapisuit/pkg/utils"
+	"github.com/krittakondev/goapisuit/v2"
+	"github.com/krittakondev/goapisuit/v2/internal/models"
+	"github.com/krittakondev/goapisuit/v2/pkg/utils"
 	// "gorm.io/gorm"
 )
 

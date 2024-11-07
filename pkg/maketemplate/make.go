@@ -9,7 +9,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/krittakondev/goapisuit/pkg/utils"
+	"github.com/krittakondev/goapisuit/v2/pkg/utils"
 )
 
 type MakeTemplate struct {
