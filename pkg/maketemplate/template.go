@@ -197,7 +197,7 @@ func (r *Route) {{.Name}}_post(c fiber.Ctx) error {
 
 	var body models.{{.ModelName}};
 	
-	if err := c.Bind().Body(body); err != nil {
+	if err := c.Bind().Body(&body); err != nil {
 		return c.JSON(Response{{.Name}}{
 			Code: -1,
 			Message: err.Error(),
@@ -268,7 +268,7 @@ func (r *Route) {{.Name}}_put(c fiber.Ctx) error {
 		})
 	}
 	var body models.{{.ModelName}}
-	err := c.Bind().Body(body)
+	err := c.Bind().Body(&body)
 	if err != nil {
 		return c.JSON(Response{{.Name}}{
 			Code:    -1,
