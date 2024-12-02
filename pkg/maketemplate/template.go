@@ -350,7 +350,7 @@ services:
     
 
   db:
-    image: mysql
+    image: "mysql:8.4.3"
     restart: always
     environment:
       MYSQL_USER: {{.DbUsername}}
