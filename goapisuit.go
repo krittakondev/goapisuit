@@ -23,7 +23,7 @@ import (
 	// routesAll "github.com/krittakondev/goapisuit/internal/api/routes"
 )
 
-const Version = "v2.0.1-beta"
+const Version = "v2.0.2-beta"
 
 type Suit struct {
 	ProjectName    string
