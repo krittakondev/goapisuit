@@ -322,11 +322,12 @@ func main(){
 }
 `
 
-var templateDockerfile = `FROM golang:1.23.1-alpine
+var templateDockerfile = `FROM golang:alpine
 
 WORKDIR /usr/src/app
 
 COPY go.mod go.sum ./
+RUN go mod tidy
 RUN go mod download && go mod verify
 
 COPY . .
