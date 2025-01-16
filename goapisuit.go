@@ -13,8 +13,8 @@ import (
 
 	"github.com/caarlos0/env/v6"
 	"github.com/gofiber/fiber/v3"
-	"github.com/gofiber/fiber/v3/middleware/static"
 	fiber_recover "github.com/gofiber/fiber/v3/middleware/recover"
+	"github.com/gofiber/fiber/v3/middleware/static"
 	"github.com/joho/godotenv"
 	"github.com/krittakondev/goapisuit/v2/database"
 	"github.com/krittakondev/goapisuit/v2/middlewares"
@@ -55,6 +55,16 @@ func LoadEnv() Config {
 	if err := env.Parse(&cfg); err != nil {
 		log.Fatalf("Error parsing env variables: %s", err)
 	}
+	if cfg.AppHost == "" {
+		cfg.AppHost = "127.0.0.1"
+	}
+	if cfg.AppPort == "" {
+		cfg.AppPort = "3000"
+	}
+	if cfg.ApiLimitPage == 0 {
+		cfg.ApiLimitPage = 10
+	}
+
 	return cfg
 }
 
@@ -85,7 +95,7 @@ func New(project_name string, fiberConfig ...fiber.Config) (suit *Suit, err erro
 		ServerHeader: "goapisuit",
 		AppName:      suit.Config.AppName,
 	})
-	if len(fiberConfig) > 0{
+	if len(fiberConfig) > 0 {
 		app = fiber.New(fiberConfig...)
 	}
 	suit.Fiber = app
@@ -158,7 +168,7 @@ func setupDynamicRoutes(api fiber.Router, r interface{}) (routes []map[string]st
 		handler := handlerReflect(reflect_val, namemethod)
 
 		path_split := strings.Split(utils.CamelToKebab(namemethod), "_")
-		apipath := path_split[0] 
+		apipath := path_split[0]
 		route_method := ""
 		if len(path_split) > 1 {
 			route_method = path_split[1]
@@ -227,7 +237,7 @@ func (s *Suit) SetupGroups(api_prefix string, r interface{}, middleware ...fiber
 	re := regexp.MustCompile(`/+`)
 	for _, val := range routes {
 		join_path := re.ReplaceAllString(fmt.Sprintf("/%s/%s/%s", api_prefix, val["path"], val["param"]), "/")
-		fmt.Printf("%s\n%s\t%s\n",strings.Repeat("-", 30), strings.ToUpper(val["method"]), join_path)
+		fmt.Printf("%s\n%s\t%s\n", strings.Repeat("-", 30), strings.ToUpper(val["method"]), join_path)
 
 	}
 	return
@@ -249,7 +259,6 @@ func (s *Suit) Run() {
 	if PORT == "" {
 		PORT = "3000"
 	}
-
 
 	if err := s.Fiber.Listen(HOST + ":" + PORT); err != nil {
 		log.Fatal(err)
