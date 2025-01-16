@@ -56,7 +56,7 @@ func LoadEnv() Config {
 		log.Fatalf("Error parsing env variables: %s", err)
 	}
 	if cfg.AppHost == "" {
-		cfg.AppHost = "127.0.0.1"
+		cfg.AppHost = "0.0.0.0"
 	}
 	if cfg.AppPort == "" {
 		cfg.AppPort = "3000"
@@ -254,11 +254,8 @@ func (s *Suit) SetupRoutes(r interface{}) {
 
 func (s *Suit) Run() {
 
-	HOST := os.Getenv("APP_HOST")
-	PORT := os.Getenv("APP_PORT")
-	if PORT == "" {
-		PORT = "3000"
-	}
+	HOST := s.Config.AppHost
+	PORT := s.Config.AppPort
 
 	if err := s.Fiber.Listen(HOST + ":" + PORT); err != nil {
 		log.Fatal(err)
