@@ -244,12 +244,12 @@ func (s *Suit) SetupGroups(api_prefix string, r interface{}, middleware ...fiber
 }
 
 func (s *Suit) SetupRoutes(r interface{}) {
-	api_prefix := "/api"
-	if prefix := os.Getenv("API_PREFIX"); prefix != "" {
-		api_prefix = prefix
+	apiPrefix := s.Config.ApiPrefix
+	if apiPrefix == "" {
+		apiPrefix = "/api"
 	}
 
-	s.SetupGroups(api_prefix, r)
+	s.SetupGroups(apiPrefix, r)
 }
 
 func (s *Suit) Run() {
