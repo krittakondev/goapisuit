@@ -6,7 +6,7 @@ require (
 	github.com/briandowns/spinner v1.23.1
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/gofiber/fiber/v2 v2.52.5
-	github.com/golang-jwt/jwt/v5 v5.2.1
+	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/joho/godotenv v1.5.1
 	github.com/manifoldco/promptui v0.9.0
 	golang.org/x/crypto v0.31.0
